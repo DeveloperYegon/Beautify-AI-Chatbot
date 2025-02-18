@@ -1,74 +1,63 @@
 import { useState } from "react";
 import axios from "axios";
-import { TextField, Button, Card, CardContent, Typography } from "@mui/material";
 
 
 function Dashboard() {
 
-  const [question, setQuestion] = useState("");
-  const [answer, setAnswer] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
 
+  // Handle input change
+  const handleChange = (e) => {
+    setInput(e.target.value);
+  };
 
+  // Handle form submit
   const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (input.trim() === "") return;
 
-    if (!question) {
-      return;
+    const userMessage = { role: "user", content: input };
+    setMessages((prevMessages) => [...prevMessages, userMessage]);
+    setInput("");
+
+    try {
+      const response = await axios.post("http://localhost:5000/chat", {
+        messages: [...messages, userMessage],
+      });
+      const aiMessage = {
+        role: "ai",
+        content: response.data.kwargs.content,
+      };
+      setMessages((prevMessages) => [...prevMessages, aiMessage]);
+    } catch (error) {
+      console.error("Error fetching AI response:", error);
     }
-
-    try{
-      e.preventDefault()
-      const response = await axios.post("http://localhost:5000/api/query", {query:question});
-
-      setAnswer(response.data.answer);
-    }catch(error){
-      console.error("Error fetching response:", error);
-      setAnswer("Error retrieving response. Please try again.");
-    }
-  }
-
+  };
 
 
   return (
     <main className="h-screen">
-      
-      <Card>
-     <CardContent>
-
-      <Typography variant="h5" component="h2">
-        Ask your question
-      </Typography>
+      <h1>LangChain Chatbot</h1>
+      <div className="chat-box">
+        {messages.map((msg, index) => (
+          <div
+            key={index}
+            className={`message ${msg.role === "user" ? "user" : "ai"}`}
+          >
+            <strong>{msg.role === "user" ? "You" : "AI"}:</strong> {msg.content}
+          </div>
+        ))}
+      </div>
       <form onSubmit={handleSubmit}>
-        <TextField
-          label="Question"
-          variant="outlined"
-          fullWidth
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
+        <input
+          type="text"
+          value={input}
+          onChange={handleChange}
+          placeholder="Type a message..."
         />
-
-        <Button type="submit" variant="contained" className="bg-[#1E2938]">
-          Submit
-        </Button> 
+        <button type="submit">Send</button>
       </form>
-     
-
-      {answer && (
-        <Card>
-          <CardContent>
-            <Typography variant="h5" component="h2">
-              Answer
-            </Typography>
-            <Typography variant="body2" component="p">
-              {answer}
-            </Typography>
-          </CardContent>
-        </Card>
-      )}
-     </CardContent>
-
-      </Card>
-
-
     </main>
   )
 }
