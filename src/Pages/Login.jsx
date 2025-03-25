@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
+
 
 function Login() {
     const { register, handleSubmit, formState: { errors }, reset } = useForm();
@@ -22,22 +24,39 @@ function Login() {
     // Submit handler for email/password login
     const onSubmit = async (data) => {
         setIsLoading(true);
-        const { email, password } = data;
+       
 
-        try {
+        try {   
+            const response= await axios.post('http://localhost:5001/api/login', {
+                email:data.email,
+                password:data.password
+            });
+
+            console.log("🔥 Login Response:", response.data);
+            if (response.status === 200) {
             notifySuccess();
             reset();
-            setTimeout(() => navigate('/'), 2000);
+            setErrorMessages('');
+            const token = response.data.token;
+            localStorage.setItem('authToken', token);
+            
+            setTimeout(() => navigate('/profile'), 2000);
+            }else {
+                // Handle unexpected statuses
+                setErrorMessages("Unexpected error. Please try again.");
+            }
         } catch (err) {
+            console.error("🔥 Error during login:", err.response?.data || err.message);
             setErrorMessages("Invalid Email/Password");
             notifyError("Invalid Email/Password");
+        } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <main className='h-full p-5 rounded-[10px] bg-white'>
-            <div className='border md:w-1/2 rounded-[10px] m-auto p-5 border-slate-500'>
+        <main className='h-full pt-5 pb-11 rounded-[10px] bg-white'>
+            <div className='border md:w-1/2 rounded-[10px] m-3 md:m-auto p-5 border-slate-500'>
                 <h3 className='text-center py-5 font-bold text-[#F13934] text-2xl'>LOGIN</h3>
                 <hr className='w-[80%] h-1 m-auto bg-black' />
 

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
 
 function Signup() {
   const { register, handleSubmit, formState: { errors }, reset, watch } = useForm();
@@ -16,16 +17,30 @@ function Signup() {
   // Submit handler
   const onSubmit = async (data) => {
     setIsLoading(true); // Show loading indicator
-    const { email, password } = data; // Extract email and password from form data
+    // const formData = new FormData();
+        
+    // formData.append('name', data.name);
+    // formData.append('password', data.password);
 
     try {
-      // Firebase Auth: Create user with email and password
+    // Send POST request to backend
+      const response = await axios.post('http://localhost:5001/api/register',{
+        email: data.email,
+        password:data.password
+      });
+      if (response.status === 201) {
       notifySuccess(); // Show success toast
       reset(); // Reset the form
       setErrorMessages(''); // Clear any previous errors
       setTimeout(() => {
-        navigate('/profile'); // Redirect to login page after a short delay
+        navigate('/login'); // Redirect to login page after a short delay
       }, 2000);
+    } else {
+       // Handle unexpected statuses
+       setErrorMessages(err.message);
+       console.log(err.message);
+       
+      }
     } catch (err) {
       setErrorMessages(err.message); // Show error message
       setIsLoading(false); // Stop loading indicator
