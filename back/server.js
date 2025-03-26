@@ -8,7 +8,7 @@ const multer = require("multer");
 const fs = require("fs");
 const axios = require("axios");
 const Chat = require("./models/Chat");
-const {authenticatedUser, getUserIdFromToken}=require("./middleware/authmiddleware");
+const {getUserIdFromToken}=require("./middleware/authmiddleware");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const { ChatGoogleGenerativeAI } = require("@langchain/google-genai");
@@ -283,7 +283,7 @@ app.post("/upload-pdf", upload.single("pdf"), async (req, res) => {
 });
 
 // Question Answering with RAG Pipeline
-app.post("/ask",authenticatedUser,async (req, res) => {
+app.post("/ask",async (req, res) => {
   const { question, thread_id } = req.body; // Add thread_id for conversation tracking
   console.log(req.body);
   console.log("Question:", question); // Log the question
@@ -362,8 +362,6 @@ const chat = await Chat.findOneAndUpdate(
 );
 
 console.log("Chat saved to MongoDB:", chat);
-
-
     } catch (error) {
       console.error("Error saving chat:", error);
     }

@@ -1,17 +1,10 @@
-import React from 'react'
+import React,{useEffect,useState} from 'react'
 import { FaBell } from "react-icons/fa6";
 import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
 import {jwtDecode} from "jwt-decode";
 import { IoDiamond } from "react-icons/io5";
 
-
-const extractInitials = () => {
-  const token=localStorage.getItem("authToken")
-  if (!token || isTokenExpired(token)) {
-    localStorage.removeItem('token');
-    window.location.href = '/login';
-    return; // Important to prevent further execution
-  }
 
 // Helper function to check token expiry
 function isTokenExpired(token) {
@@ -23,26 +16,33 @@ function isTokenExpired(token) {
   }
 }
 
- if(!token) return null;
- try{
-  const decoded = jwtDecode(token);
-  const email = decoded.email || "";
 
-  // Extract initials (first letter of first and last part before "@")
-  const nameParts = email.split("@")[0].split(".");
-  const initials = nameParts.map(part => part[0].toUpperCase()).join("");
-
-  return initials;
- } catch (error) {
-  console.error("Error decoding token:", error);
-  return null;
-}
-};
 
 function Navbar() {
+  const [initials, setInitials] = useState(null);
+  const navigate = useNavigate();
   
 
-const initials =extractInitials();
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+
+    if (!token || isTokenExpired(token)) {
+      localStorage.removeItem("authToken");
+      navigate("/login"); // Use React Router for navigation
+      return;
+    }
+
+    try {
+      const decoded = jwtDecode(token);
+      const email = decoded.email || "";
+      const nameParts = email.split("@")[0].split(".");
+      const userInitials = nameParts.map((part) => part[0].toUpperCase()).join("");
+      setInitials(userInitials);
+    } catch (error) {
+      console.error("Error decoding token:", error);
+      setInitials(null);
+    }
+  }, []);
 
   return (
     <nav className='flex justify-around items-center p-5  bg-[#CAD5E2] text-black sticky top-0'>
@@ -60,7 +60,7 @@ const initials =extractInitials();
           </li>
           {initials?(<Link className='bg-[#000000] text-white p-3 font-bold rounded-full' to="/profile">{initials}</Link>):(<li className=' border border-white font-bold text-white py-3 px-3 bg-black rounded-full'>
           <Link to="/login" >
-          Log In
+          Login
           </Link>
           </li>)}
         

@@ -3,9 +3,8 @@ import axios from "axios";
 import ReactMarkdown from "react-markdown";
 import { BsFillSendFill } from "react-icons/bs";
 import { FaCircleStop } from "react-icons/fa6";
-import Sidebar from "../Components/Sidebar";
 
-function Dashboard() {
+function Chat() {
   const [question, setQuestion] = useState("");
   const [messages, setMessages] = useState([
     { role: "ai", content: "**Hello!** I'm here to chat with you." },
@@ -57,13 +56,10 @@ function isTokenExpired(token) {
     setQuestion("");
 
     try {
-      const response = await axios.post("http://localhost:5001/ask", { question, thread_id },
-        {headers: {
-          "Authorization": `Bearer ${token}`,
-          "Accept": "application/json, text/plain, */*",
-           'Content-Type': 'application/json'
-        }
-    });
+      const response = await axios.post("http://localhost:5001/ask", { question, thread_id },{
+        headers: { Authorization: `Bearer ${token}` }
+      }
+    );
 
     console.log(`data to backend ${question} and ${thread_id}`);
     
@@ -81,21 +77,21 @@ function isTokenExpired(token) {
       }
     } catch (error) {
       console.error("Error asking question:", error);
-  if (error.response?.status === 401) {
-    // Add user feedback
-    setMessages(prev => [...prev, {
-      role: "ai", 
-      content: "Your session has expired. Please log in again."
-    }]);
-    localStorage.removeItem('token');
-    window.location.href = '/login';
-  } else {
-    // Show generic error to user
-    setMessages(prev => [...prev, {
-      role: "ai", 
-      content: "Sorry, I encountered an error. Please try again later."
-    }]);
-  }
+  // if (error.response?.status === 401) {
+  //   // Add user feedback
+  //   setMessages(prev => [...prev, {
+  //     role: "ai", 
+  //     content: "Your session has expired. Please log in again."
+  //   }]);
+  //   localStorage.removeItem('token');
+  //   window.location.href = '/login';
+  // } else {
+  //   // Show generic error to user
+  //   setMessages(prev => [...prev, {
+  //     role: "ai", 
+  //     content: "Sorry, I encountered an error. Please try again later."
+  //   }]);
+  // }
     } finally {
       setLoading(false);
     }
@@ -207,4 +203,4 @@ function isTokenExpired(token) {
   );
 }
 
-export default Dashboard;
+export default Chat;

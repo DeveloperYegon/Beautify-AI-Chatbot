@@ -5,48 +5,81 @@ import { RiAdminLine } from "react-icons/ri";
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 
-function Sidebar({ isCollapsed, toggleSidebar ,setMessages }) {
-  const [chats, setChats] = useState([]);
-   const token = localStorage.getItem('authToken');
+function Sidebar({ isCollapsed, toggleSidebar }) {
+   const [chats, setChats] = useState([]);
+   const [authToken, setAuthToken] = useState(localStorage.getItem('authToken'));
+   const [messages, setMessages] = useState([]);
+// Watch for token updates
+useEffect(() => {
+  const interval = setInterval(() => {
+    setAuthToken(localStorage.getItem('authToken'));
+  }, 1000); // Check every second
+
+  return () => clearInterval(interval);
+}, []);
+
+console.log(authToken);
 
   // Fetch user's chat history
-  useEffect(() => {
-    const fetchChats = async () => {
-      try {
-        const response = await axios.get("http://127.0.0.1:5001/chats/user-chats", {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setChats(response.data);
-      } catch (error) {
-        console.error("Error fetching chats:", error);
-      }
-    };
-    
-    if (token) fetchChats();
-  }, [token]);
-
-
-  const handleNewChat = async () => {
-    const response = await axios.post("http://127.0.0.1:5001/start-session", {}, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    const { thread_id } = response.data;
-    localStorage.setItem('chatID', thread_id);
-    setMessages([{ role: "ai", content: "**Hello!** I'm here to chat with you." }]);
-  };
-
-
-  const loadMessages = async (thread_id) => {
+ useEffect(() => {
+  const fetchChats = async () => {
+    if (!authToken) return; // Prevent API call if token is missing
     try {
-      const response = await axios.get(`http://127.0.0.1:5001/chats/chat-messages/${thread_id}`, {
-        headers: { Authorization: `Bearer ${token}` }
+      const response = await axios.get("http://127.0.0.1:5001/chats/user-chats", {
+        headers: { Authorization: `Bearer ${authToken}` }
       });
-      localStorage.setItem('chatID', thread_id);
-      setMessages(response.data);
+      setChats(response.data);
     } catch (error) {
-      console.error("Error loading chat:", error);
+      console.error("Error fetching chats:", error);
     }
   };
+
+  fetchChats();
+}, [authToken]);
+
+
+
+const handleNewChat = async () => {
+  try {
+    const response = await axios.post(
+      "http://127.0.0.1:5001/start-session",
+      {},
+      { headers: { Authorization: `Bearer ${authToken}` } }
+    );
+    
+    if (!response.data?.thread_id) throw new Error("Invalid response from server");
+
+    localStorage.setItem("chatID", response.data.thread_id);
+    setMessages([{ role: "ai", content: "**Hello!** I'm here to chat with you." }]);
+
+    console.log("New chat started:", response.data);
+    
+
+  } catch (error) {
+    console.error("Error starting new chat:", error);
+    alert("Failed to start a new chat. Please try again.");
+  }
+};
+
+
+const loadMessages = async (thread_id) => {
+  try {
+    const response = await axios.get(`http://127.0.0.1:5001/chats/chat-messages/${thread_id}`, {
+      headers: { Authorization: `Bearer ${authToken}` },
+    });
+
+    if (!response.data) throw new Error("Invalid response from server");
+
+    localStorage.setItem("chatID", thread_id);
+    setMessages(response.data);
+    console.log("Chat messages loaded:", response.data);
+    
+  } catch (error) {
+    console.error("Error loading chat:", error);
+    alert("Failed to load chat messages. Please try again.");
+  }
+};
+
 
 
   return (
@@ -66,29 +99,34 @@ function Sidebar({ isCollapsed, toggleSidebar ,setMessages }) {
       </div>
      
  {/* Chat History */}
-      <div className="flex-1 overflow-y-auto mt-4">
-        {chats.map(chat => (
-          <div 
-            key={chat.thread_id}
-            onClick={() => loadMessages(chat.thread_id)}
-            className="p-2 hover:bg-gray-300 rounded-lg cursor-pointer truncate"
-            title={new Date(chat.updated_at).toLocaleString()}
-          >
-            {!isCollapsed && (
-              <>
-                <span className="font-medium">
-                  {chat.messages?.[0]?.content?.substring(0, 30) || "New Chat"}...
-                </span>
-                <br />
-                <span className="text-xs text-gray-600">
-                  {new Date(chat.updated_at).toLocaleDateString()}
-                </span>
-              </>
-            )}
-            {isCollapsed && <div className="w-6 h-6 bg-gray-400 rounded-full mx-auto" />}
-          </div>
-        ))}
+ <div className="flex-1 overflow-y-auto mt-4">
+  {chats && chats.length > 0 ? (
+    chats.map(chat => (
+      <div 
+        key={chat.thread_id}
+        onClick={() => loadMessages(chat.thread_id)}
+        className="p-2 hover:bg-gray-300 rounded-lg cursor-pointer truncate"
+        title={chat.updated_at ? new Date(chat.updated_at).toLocaleString() : "Unknown date"}
+      >
+        {!isCollapsed && (
+          <>
+            <span className="font-medium">
+              {chat.messages?.[0]?.content?.substring(0, 30) || "New Chat"}...
+            </span>
+            <br />
+            <span className="text-xs text-gray-600">
+              {chat.updated_at ? new Date(chat.updated_at).toLocaleDateString() : "No date"}
+            </span>
+          </>
+        )}
+        {isCollapsed && <div className="w-6 h-6 bg-gray-400 rounded-full mx-auto" />}
       </div>
+    ))
+  ) : (
+    <p className="text-center text-gray-500">No chats available</p>
+  )}
+</div>
+
 
       {/* Admin Panel (Always Visible at Bottom) */}
       <Link to="/admin">

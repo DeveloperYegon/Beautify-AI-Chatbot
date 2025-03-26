@@ -23,22 +23,22 @@ exports.adminMiddleware = (req, res, next) => {
 };
 
 
-exports.authenticatedUser = (req, res, next) => {
+// exports.authenticatedUser = (req, res, next) => {
   
-  try {
-    const token = req.headers.authorization;
-    const userId = getUserIdFromToken(token);
+//   try {
+//     const token = req.headers.authorization;
+//     const userId = getUserIdFromToken(token);
     
-    if (!userId) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
+//     if (!userId) {
+//       return res.status(401).json({ error: "Unauthorized" });
+//     }
     
-    req.user = { id: userId };
-    next();
-  } catch (error) {
-    return res.status(401).json({ error: "Invalid token" });
-  }
-};
+//     req.user = { id: userId };
+//     next();
+//   } catch (error) {
+//     return res.status(401).json({ error: "Invalid token" });
+//   }
+// };
 
 // Add this utility function
 exports.getUserIdFromToken = (token) => {
