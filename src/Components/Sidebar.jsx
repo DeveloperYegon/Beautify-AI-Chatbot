@@ -4,21 +4,17 @@ import { HiMiniBars3BottomLeft } from "react-icons/hi2";
 import { RiAdminLine } from "react-icons/ri";
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { useSelector, useDispatch } from "react-redux";
+import { setThreadId } from "../redux/threadSlice";
+import { setMessages } from "../redux/chatSlice";
+
 
 function Sidebar({ isCollapsed, toggleSidebar }) {
+  const dispatch = useDispatch();
    const [chats, setChats] = useState([]);
-   const [authToken, setAuthToken] = useState(localStorage.getItem('authToken'));
-   const [messages, setMessages] = useState([]);
-// Watch for token updates
-useEffect(() => {
-  const interval = setInterval(() => {
-    setAuthToken(localStorage.getItem('authToken'));
-  }, 1000); // Check every second
+  // Watch for token updates
+  const authToken = useSelector((state) => state.auth.token);
 
-  return () => clearInterval(interval);
-}, []);
-
-console.log(authToken);
 
   // Fetch user's chat history
  useEffect(() => {
@@ -42,11 +38,14 @@ console.log(authToken);
 const handleNewChat = async () => {
   try {
     const response = await axios.post(
-      "http://127.0.0.1:5001/start-session",
+      "http://127.0.0.1:5001/chats/start-chat",
       {},
       { headers: { Authorization: `Bearer ${authToken}` } }
     );
-    
+    // If a new thread ID is received, update Redux state
+    if (response.data?.thread_id) {
+      dispatch(setThreadId(response.data.thread_id)); 
+    }
     if (!response.data?.thread_id) throw new Error("Invalid response from server");
 
     localStorage.setItem("chatID", response.data.thread_id);
@@ -71,7 +70,12 @@ const loadMessages = async (thread_id) => {
     if (!response.data) throw new Error("Invalid response from server");
 
     localStorage.setItem("chatID", thread_id);
-    setMessages(response.data);
+    //  Update Redux global state with messages
+    dispatch(setMessages(response.data));
+
+    //  Update Redux thread ID
+    dispatch(setThreadId(thread_id));
+
     console.log("Chat messages loaded:", response.data);
     
   } catch (error) {

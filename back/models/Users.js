@@ -13,9 +13,10 @@ name:{
     type:String,
     // required:true
 },
-concern:{
-    type:Object,
-    default:{},
+concerns:{
+    type:[String],
+    default:[],
+
     // required:true
 },
 skinType:{

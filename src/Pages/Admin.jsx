@@ -29,7 +29,7 @@ function Admin() {
         }
     };
 
-    /** ✅ Handle PDF upload submission **/
+    /**  Handle PDF upload submission **/
     const handlePdfSubmit = async (e) => {
         e.preventDefault();
         if (!pdf) return;
@@ -42,9 +42,9 @@ function Admin() {
             await axios.post("http://localhost:5001/upload-pdf", formData, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
-            alert("✅ PDF indexed successfully!");
+            alert(" PDF indexed successfully!");
         } catch (error) {
-            console.error("🔥 Error uploading PDF:", error);
+            console.error(" Error uploading PDF:", error);
         } finally {
             setLoading(false);
         }

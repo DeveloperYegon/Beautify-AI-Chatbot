@@ -117,11 +117,11 @@ function Profile() {
           <input className="bg-slate-300 border p-3 rounded-xl" type="text" value={user.role || ""} disabled />
 
 
-          <label className="font-bold py-3" htmlFor="concerns">Concerns:</label>
+          <label className="font-bold py-3" htmlFor="concerns">User Concerns/Preferences:</label>
           <div className="flex flex-wrap">
             {concerns.map((concern) => (
               <label key={concern} className="flex items-center mr-4">
-                <input type="checkbox" name="concerns" className="mr-2" value={concern} checked={Array.isArray(user.concerns) && user.concerns.includes(concern)} onChange={handleChange}/>
+                <input type="checkbox" name="concerns" className="mr-2 bg-[#F0BA30]" value={concern} checked={Array.isArray(user.concerns) && user.concerns.includes(concern)} onChange={handleChange}/>
                 {concern}
               </label>
             ))}

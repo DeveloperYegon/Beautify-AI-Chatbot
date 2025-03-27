@@ -1,16 +1,19 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
+import {  useDispatch } from "react-redux";
+import { logout } from "../redux/authSlice"; // Import action
 import 'react-toastify/dist/ReactToastify.css';
 
 const LogoutButton = () => {
+    const dispatch = useDispatch();
     const token = localStorage.getItem('authToken');
     const navigate = useNavigate();
     
     const notifySuccess = () => toast.success("Logged Out Successfully!");
 
     const handleLogout = () => {
-        localStorage.removeItem('authToken');
+       dispatch(logout());
         notifySuccess();
         
         // Delay navigation slightly to allow the toast message to display

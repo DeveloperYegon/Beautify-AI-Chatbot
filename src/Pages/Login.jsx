@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useDispatch } from "react-redux";
+import { loginSuccess } from "../redux/authSlice";
 import axios from 'axios';
 
 
@@ -12,6 +14,7 @@ function Login() {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const [email, setEmail] = useState('');
+    const dispatch = useDispatch();
     
 
 
@@ -32,9 +35,10 @@ function Login() {
                 password:data.password
             });
 
-            console.log("🔥 Login Response:", response.data);
+            console.log(" Login Response:", response.data);
             if (response.status === 200) {
             notifySuccess();
+            dispatch(loginSuccess({ user: response.data.user, token: response.data.token }));
             reset();
             setErrorMessages('');
             const token = response.data.token;
@@ -46,7 +50,7 @@ function Login() {
                 setErrorMessages("Unexpected error. Please try again.");
             }
         } catch (err) {
-            console.error("🔥 Error during login:", err.response?.data || err.message);
+            console.error("Error during login:", err.response?.data || err.message);
             setErrorMessages("Invalid Email/Password");
             notifyError("Invalid Email/Password");
         } finally {
@@ -58,7 +62,7 @@ function Login() {
         <main className='h-full pt-5 pb-11 rounded-[10px] bg-white'>
             <div className='border md:w-1/2 rounded-[10px] m-3 md:m-auto p-5 border-slate-500'>
                 <h3 className='text-center py-5 font-bold text-[#F13934] text-2xl'>LOGIN</h3>
-                <hr className='w-[80%] h-1 m-auto bg-black' />
+            <hr className='w-[80%] h-1 m-auto bg-black' />
 
                 {errorMessages && (
                     <div id="authmessage" className='text-center py-3 text-red-600'>

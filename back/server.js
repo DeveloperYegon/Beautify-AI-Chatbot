@@ -281,111 +281,89 @@ app.post("/upload-pdf", upload.single("pdf"), async (req, res) => {
     return res.status(500).json({ error: "Failed to load PDF" });
   }
 });
-
-// Question Answering with RAG Pipeline
-app.post("/ask",async (req, res) => {
-  const { question, thread_id } = req.body; // Add thread_id for conversation tracking
+app.post("/ask", async (req, res) => {
+  const { question, thread_id } = req.body;
   console.log(req.body);
-  console.log("Question:", question); // Log the question
 
-    // Extract user ID from Authorization header
-    const token = req.headers.authorization;
-    const userId = getUserIdFromToken(token);
-    
-    if (!userId) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
+  // Extract user ID from Authorization header
+  const token = req.headers.authorization;
+  const userId = getUserIdFromToken(token);
+  if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
   if (!question || typeof question !== "string") {
     return res.status(400).json({ error: "Invalid question format." });
   }
 
- if (!isVectorStoreInitialized) {
+  if (!isVectorStoreInitialized) {
     return res.status(500).json({ error: "Vector store is not initialized." });
   }
 
   try {
-    // Log the input to the embedding model
-    console.log("Input to embedding model:", question);
-     // Validate or generate thread_id
-    const validatedThreadId = thread_id && typeof thread_id === "string" ? thread_id : uuidv4();
+    // Validate thread_id
+    const validatedThreadId = thread_id && typeof thread_id === "string" && thread_id.trim().length > 0
+    ? thread_id
+    : uuidv4();
+console.log("Validated Thread ID:", validatedThreadId);  
 
     // Retrieve or initialize conversation history
-    const config = { configurable: { thread_id: validatedThreadId || uuidv4() } };
+    const config = { configurable: { thread_id: validatedThreadId } };
     const initialState = { messages: [{ role: "user", content: question }] };
-    console.log("Initial State:", initialState); // Log the initial state
 
-    // Invoke the workflow
+    // Invoke AI Workflow
     const output = await appWorkflow.invoke(initialState, config);
+    console.log("AI Workflow Output:", output);
+
+    // Extract AI response
     const aiResponse = output.messages[output.messages.length - 1].content;
 
     // Fetch external resources
     const articles = await fetchBeautyArticles(question);
     const productLink = generateProductRecommendation(question);
 
-
-    // Save the conversation to MongoDB - single optimized operation
-    try {
-const chat = await Chat.findOneAndUpdate(
-  { thread_id: validatedThreadId },
-  {
-    $setOnInsert: { // Only set these on insert (new chat)
-      user_id: userId, // Make sure to include user_id
-      title: `Chat about ${question.substring(0, 20)}...`,
-      created_at: new Date()
-    },
-    $push: {
-      messages: {
-        $each: [
-          { role: "user", content: question },
-          { role: "ai", content: aiResponse }
-        ]
-      }
-    },
-    $set: {
-      updated_at: new Date(),
-      // Update title if it's still the default
-      title: {
-        $cond: [
-          { $eq: ["$title", "New Chat"] },
-          `Chat about ${question.substring(0, 20)}...`,
-          "$title"
-        ]
-      }
-    }
-  },
-  {
-    upsert: true,
-    new: true,
-    setDefaultsOnInsert: true
-  }
-);
-
-console.log("Chat saved to MongoDB:", chat);
-    } catch (error) {
-      console.error("Error saving chat:", error);
+    // Save the chat in MongoDB
+    const chat = await Chat.findOneAndUpdate(
+      { thread_id: validatedThreadId },
+      {
+        $set: {
+          user_id: userId,
+          updated_at: new Date(),
+          title: `Chat about ${question.substring(0, 20)}...`, // Title update
+        },
+        $push: {
+          messages: {
+            $each: [
+              { role: "user", content: question },
+              { role: "ai", content: aiResponse }
+            ]
+          }
+        }
+      },
+      { upsert: true, new: true }
+    );
+    
+    // If chat was just created, ensure messages field exists
+    if (!chat.messages) {
+      await Chat.updateOne(
+        { thread_id: validatedThreadId },
+        { $set: { messages: [] } }
+      );
     }
 
+    console.log("Chat saved to MongoDB:", chat);
 
-
-    console.log("AI Response:", aiResponse);
-    console.log("Articles:", articles);
-    console.log("Product Link:", productLink);
-
-    // Return response with conversation context
     return res.json({
       answer: aiResponse,
       articles,
       productLink,
-      thread_id: config.configurable.thread_id, // Return thread_id for follow-up questions
+      thread_id: validatedThreadId, 
     });
-
 
   } catch (error) {
     console.error("Error processing question:", error);
     return res.status(500).json({ error: "Failed to process the request" });
   }
 });
+
 
 // clean up old conversation histories
 const cleanupOldSessions = async () => {
@@ -401,39 +379,12 @@ const cleanupOldSessions = async () => {
 // Run cleanup every 24 hours
 setInterval(cleanupOldSessions, 24 * 60 * 60 * 1000);
 
-//start session
-app.post("/start-session",async (req, res) => {
-  const token = req.headers.authorization;
-  const userId = getUserIdFromToken(token);
-  
-  if (!userId) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-
-  try {
-    const thread_id = uuidv4(); // Generate a unique thread_id
-     // Create initial chat document
-     await Chat.create({
-      thread_id,
-      user_id: userId,
-      messages: [{
-        role: "ai",
-        content: "Hello! How can I help you today?"
-      }],
-      title: "New Chat"
-    });
-    
-    return res.json({ thread_id });
-  } catch (error) {
-    console.error("Error creating session:", error);
-    return res.status(500).json({ error: "Failed to create session" });
-  }
-});
-
 
 // Routes
 app.use('/api', require('./routes/userroutes'));
 app.use('/chats', require('./routes/chatroutes'));
+
+
 // Start the server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);

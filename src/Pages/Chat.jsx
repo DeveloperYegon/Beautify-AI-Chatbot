@@ -3,38 +3,46 @@ import axios from "axios";
 import ReactMarkdown from "react-markdown";
 import { BsFillSendFill } from "react-icons/bs";
 import { FaCircleStop } from "react-icons/fa6";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../redux/authSlice";
+import { clearThreadId } from "../redux/threadSlice";
+import { useNavigate  } from "react-router-dom";
 
 function Chat() {
+  const dispatch = useDispatch();
+  const token = useSelector((state) => state.auth.token);
+  const thread_id = useSelector((state) => state.thread.threadId); // Get thread ID from Redux
+  const message = useSelector((state) => state.chat.messages);
   const [question, setQuestion] = useState("");
   const [messages, setMessages] = useState([
     { role: "ai", content: "**Hello!** I'm here to chat with you." },
   ]);
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
+  const navigate = useNavigate();
 
-  // Get thread ID from local storage
-  const thread_id= localStorage.getItem("chatID");
-  console.log(thread_id);
-  //get outh token
+  
 
-  const token=localStorage.getItem('authToken');
-  if (!token || isTokenExpired(token)) {
-    localStorage.removeItem('token');
-    window.location.href = '/login';
-    return; // Important to prevent further execution
+   // Check for token expiry on component mount
+   useEffect(() => {
+    if (!token || isTokenExpired(token)) {
+      dispatch(logout());
+      navigate("/login");
+      dispatch(clearThreadId()); // Clears thread ID on logout
+    }
+  }, [token, dispatch]);
+
+   // Helper function to check token expiry
+   function isTokenExpired(token) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.exp * 1000 < Date.now();
+    } catch {
+      return true;
+    }
   }
 
-// Helper function to check token expiry
-function isTokenExpired(token) {
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.exp * 1000 < Date.now();
-  } catch {
-    return true;
-  }
-}
-
-  console.log(token);
+  
   
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -44,54 +52,29 @@ function isTokenExpired(token) {
     // Show loading state
     setLoading(true);
 
-    // Create user message object
-    const userMsgObj = {
-      role: "user",
-      content: question,
-      createdAt: Date.now(),
-    };
-
     // Update UI immediately
-    setMessages((prev) => [...prev, userMsgObj]);
+    setMessages((prev) => [...prev, { role: "user", content: question, createdAt: Date.now() }]);
     setQuestion("");
 
     try {
       const response = await axios.post("http://localhost:5001/ask", { question, thread_id },{
-        headers: { Authorization: `Bearer ${token}` }
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+        },
       }
-    );
-
-    console.log(`data to backend ${question} and ${thread_id}`);
+    );    
     
-      if (response.data) {
-        const aiMsgObj = {
-          role: "ai",
-          content: response.data, // Contains answer, articles, and productLink
-          createdAt: Date.now(),
-        };
-
-        // Update UI with AI response
-        setMessages((prev) => [...prev, aiMsgObj]);
-      } else {
-        console.error("Invalid response from backend:", response);
-      }
+    if (response.data) {
+      setMessages((prev) => [...prev, { role: "ai", content: response.data, createdAt: Date.now() }]);
+    }
     } catch (error) {
       console.error("Error asking question:", error);
-  // if (error.response?.status === 401) {
-  //   // Add user feedback
-  //   setMessages(prev => [...prev, {
-  //     role: "ai", 
-  //     content: "Your session has expired. Please log in again."
-  //   }]);
-  //   localStorage.removeItem('token');
-  //   window.location.href = '/login';
-  // } else {
-  //   // Show generic error to user
-  //   setMessages(prev => [...prev, {
-  //     role: "ai", 
-  //     content: "Sorry, I encountered an error. Please try again later."
-  //   }]);
-  // }
+      setMessages((prev) => [
+        ...prev,
+        { role: "ai", content: "Sorry, I encountered an error. Please try again later." },
+      ]);
     } finally {
       setLoading(false);
     }
@@ -124,10 +107,10 @@ function isTokenExpired(token) {
             {/* Check if AI response contains multiple sections */}
             {msg.role === "ai" && msg.content && typeof msg.content === "object" ? (
               <div>
-                {/* ✅ Display AI Answer */}
+                {/*  Display AI Answer */}
                 <ReactMarkdown className="mb-3">{msg.content.answer}</ReactMarkdown>
 
-                {/* ✅ Display Article Recommendations */}
+                {/*  Display Article Recommendations */}
                 {msg.content.articles && msg.content.articles.length > 0 && (
                   <div>
                     <h3 className="font-bold text-lg">Recommended Articles:</h3>
