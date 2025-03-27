@@ -19,6 +19,18 @@ concerns:{
 
     // required:true
 },
+age:{
+    type:Number,
+    // required:true
+},
+gender:{
+    type:String,
+    // required:true
+},
+skinTone:{
+    type:String,
+    // required:true
+},
 skinType:{
     type:String,
     // required:true

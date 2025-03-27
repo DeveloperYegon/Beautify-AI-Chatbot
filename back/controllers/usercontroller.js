@@ -41,7 +41,7 @@ exports.loginUser = async (req, res) => {
       console.log("✅ User logged in successfully");
       return res.status(200).json({ token, user });
     } catch (error) {
-      console.error("🔥 Error logging in:", error);
+      console.error("Error logging in:", error);
       return res.status(500).json({ message: error.message });
     }
   };
@@ -50,7 +50,7 @@ exports.loginUser = async (req, res) => {
 exports.getUsers = async (req, res) => {
   try {
     const users = await User.find();
-    console.log("Users fetched successfully");
+    console.log("Users fetched successfully", users);
     return res.status(200).json(users);
   } catch (error) {
     console.error("Error fetching users:", error);
@@ -63,7 +63,7 @@ exports.getUser = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
-    console.log("User fetched successfully");
+    console.log("User fetched successfully", user);
     return res.status(200).json(user);
   } catch (error) {
     console.error("Error fetching users:", error);

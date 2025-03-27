@@ -27,25 +27,26 @@ function Navbar() {
       <ul className="flex items-center gap-4">
       <li>
           <Link to="/notifications">
-          <FaBell className='text-3xl' />
+          <FaBell className='text-3xl' /> 
           </Link>
           </li>
-          <li>
           <Link to="/premium-subscription">
-          <IoDiamond className='text-3xl text-[#F0BA30]' />
-            </Link>
+          <li className="flex items-center border font-bold rounded-full hover:bg-[#F0BA30] p-2  gap-2">
+          <IoDiamond className='text-3xl  text-[#000]' />
+          <span>Go Premium</span> 
           </li>
+            </Link>
         {isAuthenticated ? (
           <>
-            <li className="bg-[#000000] text-white p-3 font-bold rounded-full">
-              <Link to="/profile">{user?.email?.charAt(0).toUpperCase()}</Link>
-            </li>
-            <button onClick={handleLogout} className="border border-white text-white py-3 px-3 bg-red-500 font-bold rounded-full">
+            <button onClick={handleLogout} className="border border-white text-black py-3 px-3 bg-[#F0BA30] font-bold rounded-full">
               Logout
             </button>
+            <li className="bg-[#000000] border-white text-white p-3 font-bold rounded-full">
+              <Link to="/profile">{user?.email?.charAt(0).toUpperCase()}</Link>
+            </li>
           </>
         ) : (
-          <li className="border border-white text-white py-3 px-3 bg-black font-bold rounded-full">
+          <li className="border border-black text-black py-3 px-3 hover:bg-[#F0BA30] font-bold rounded-full">
             <Link to="/login">Login</Link>
           </li>
         )}

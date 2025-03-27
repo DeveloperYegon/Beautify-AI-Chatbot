@@ -14,14 +14,15 @@ function Chat() {
   const thread_id = useSelector((state) => state.thread.threadId); // Get thread ID from Redux
   const message = useSelector((state) => state.chat.messages);
   const [question, setQuestion] = useState("");
-  const [messages, setMessages] = useState([
-    { role: "ai", content: "**Hello!** I'm here to chat with you." },
-  ]);
+  const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
 
-  
+    // Sync Redux state with local state
+    useEffect(() => {
+      setMessages(message);
+    }, [message]);
 
    // Check for token expiry on component mount
    useEffect(() => {
@@ -48,10 +49,8 @@ function Chat() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!question.trim()) return;
-
     // Show loading state
     setLoading(true);
-
     // Update UI immediately
     setMessages((prev) => [...prev, { role: "user", content: question, createdAt: Date.now() }]);
     setQuestion("");
@@ -89,7 +88,7 @@ function Chat() {
     <main className="flex flex-col w-fit gap-1 md:mx-5 mx-2 p-3 bg-gray-100  overflow-auto">
 
       {/* Chat Display */}
-      <div className="md:p-10 bg-white rounded-2xl mb-30 overflow-auto flex flex-col">
+      <div className="md:p-10 bg-white rounded-2xl mb-10 overflow-auto flex flex-col">
         {messages.map((msg, index) => (
           <div
             key={index}

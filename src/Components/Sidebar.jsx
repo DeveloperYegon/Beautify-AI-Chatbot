@@ -15,6 +15,7 @@ function Sidebar({ isCollapsed, toggleSidebar }) {
   // Watch for token updates
   const authToken = useSelector((state) => state.auth.token);
 
+  console.log("authToken",authToken);
 
   // Fetch user's chat history
  useEffect(() => {

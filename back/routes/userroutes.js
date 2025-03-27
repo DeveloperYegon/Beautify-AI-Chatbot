@@ -10,7 +10,7 @@ router.post("/login", loginUser);
 
 //private routes
 router.get('/user/:id', authMiddleware, getUser);  
-router.get('/users', authMiddleware, adminMiddleware, getUsers);  
+router.get('/users',  adminMiddleware, getUsers);  
 router.put('/user/:id', authMiddleware, updateUser);
 router.delete('/user/:id', authMiddleware, adminMiddleware,deleteUser);
 

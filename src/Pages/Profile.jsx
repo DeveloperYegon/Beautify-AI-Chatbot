@@ -4,11 +4,16 @@ import { ToastContainer, toast } from 'react-toastify';
 import {jwtDecode} from "jwt-decode";
 import Logout from "./Logout";
 import 'react-toastify/dist/ReactToastify.css';
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUser, updateUser } from "../redux/userSlice";
+import { useNavigate } from "react-router-dom";
 
 function Profile() {
+  const dispatch = useDispatch();
+  const { data: user, isLoading, error } = useSelector((state) => state.user);
   const [errorMessages, setErrorMessages] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [user, setUser] = useState({ name: "", email: "", skinType: "", concerns: [], lifestyle: "", Environ: "" });
+  const [updatedUser, setUpdatedUser] = useState(null);
+  const navigate = useNavigate();
 
   const skinTypes = ["Oily", "Dry", "Combination", "Sensitive", "Normal"];
   const lifestyle= ["Active", "Sedentary", "Moderate", "Highly Active","workaholic","Gym Rat"];
@@ -18,7 +23,7 @@ function Profile() {
   //  Extract userId from JWT token
   const token = localStorage.getItem('authToken');
   if (!token) {
-    window.location.href = '/login';
+    navigate("/login")
   }
   let userId = null;
   try {
@@ -30,76 +35,96 @@ function Profile() {
 
   console.log("User ID:", userId);
 
-  // Fetch user data
   useEffect(() => {
-
-    if (!userId) {
-      console.error(" User ID is undefined.");
-      return;
+    if (userId) {
+      dispatch(fetchUser(userId));
     }
-    const fetchUserData = async () => {
-      try {
-        setIsLoading(true);
-        const response = await axios.get(`http://localhost:5001/api/user/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        console.log("User data:", response.data);
-        setUser(response.data);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        if (error.response && error.response.status === 401) {
-          localStorage.removeItem("authToken");
-          window.location.href = "/login"; 
-        } else {
-          setErrorMessages("Error fetching user data. Please try again later.");
-        }
-      } finally {
-          setIsLoading(false);
-      }
-    };
-    fetchUserData();
-  }, [userId, token]);// Ensure useEffect re-runs if token changes
+  }, [dispatch, userId]);
+
+  useEffect(() => {
+    if (user) {
+      setUpdatedUser(user);
+    }
+  }, [user]);
+
+   // Handle input changes
+   const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setUpdatedUser((prev) => ({
+      ...prev,
+      [name]: type === "checkbox"
+        ? checked
+          ? [...(prev?.concerns || []), value]
+          : prev?.concerns?.filter((c) => c !== value)
+        : value,
+    }));
+  };
+
+  // // Fetch user data
+  // useEffect(() => {
+
+  //   if (!userId) {
+  //     console.error(" User ID is undefined.");
+  //     return;
+  //   }
+  //   const fetchUserData = async () => {
+  //     try {
+  //       setIsLoading(true);
+  //       const response = await axios.get(`http://localhost:5001/api/user/${userId}`, {
+  //         headers: { Authorization: `Bearer ${token}` },
+  //       });
+  //       console.log("User data:", response.data);
+  //       setUser(response.data);
+  //     } catch (error) {
+  //       console.error("Error fetching user data:", error);
+  //       if (error.response && error.response.status === 401) {
+  //         localStorage.removeItem("authToken");
+  //         window.location.href = "/login"; 
+  //       } else {
+  //         setErrorMessages("Error fetching user data. Please try again later.");
+  //       }
+  //     } finally {
+  //         setIsLoading(false);
+  //     }
+  //   };
+  //   fetchUserData();
+  // }, [userId, token]);// Ensure useEffect re-runs if token changes
 
   // Handle input change (including checkboxes)
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    if (type === "checkbox") {
-      setUser((prev) => ({
-        ...prev,
-        concerns: Array.isArray(prev.concerns) 
-          ? checked 
-            ? [...prev.concerns, value] 
-            : prev.concerns.filter(c => c !== value)
-          : [value], // Ensure it's an array
-      }));
-    } else {
-      setUser({ ...user, [name]: value });
-    }
-  };
+  // const handleChange = (e) => {
+  //   const { name, value, type, checked } = e.target;
+  //   if (type === "checkbox") {
+  //     setUser((prev) => ({
+  //       ...prev,
+  //       concerns: Array.isArray(prev.concerns) 
+  //         ? checked 
+  //           ? [...prev.concerns, value] 
+  //           : prev.concerns.filter(c => c !== value)
+  //         : [value], // Ensure it's an array
+  //     }));
+  //   } else {
+  //     setUser({ ...user, [name]: value });
+  //   }
+  // };
 
   //  Save updated profile
   const handleSave = async (e) => {
     e.preventDefault();
+    if (!updatedUser) return;
     console.log(user);
     try {
-      setIsLoading(true);
-      await axios.put(`http://localhost:5001/api/user/${userId}`,user,{
-        headers: { Authorization: `Bearer ${token}` },
-      
-      } );
+      dispatch(updateUser({ ...updatedUser, userId }));
       toast.success("Profile updated successfully!");
     } catch (error) {
       toast.error("Error updating profile. Please try again later.");
       console.error("Error updating profile:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   return (
     <main className="h-full p-5 bg-white rounded-[10px]">
 
-      <h1 className="md:text-5xl text-center text-2xl my-10">Welcome here: <span className="text-[#F13934] md:text-5xl text-2xl">{user.name}</span> ?</h1>
+      <h1 className="md:text-5xl text-center text-2xl my-10">Welcome here: <span className="text-[#F13934] md:text-5xl text-2xl">{updatedUser?.name}</span> ?</h1>
       <div className=' md:w-1/2 rounded-[10px] m-auto p-5'>
         <h3 className='text-center py-5 font-bold text-[#F13934] text-2xl'>Update Profile</h3>
         <hr className='w-[80%] h-1 m-auto bg-black' />
@@ -108,27 +133,27 @@ function Profile() {
 
         <form className="flex m-5 p-3 flex-col">
           <label className="font-bold py-3" htmlFor="name">Name:</label>
-          <input className="bg-slate-300 border p-3 rounded-xl" type="text" name="name" value={user.name || ""} onChange={handleChange} placeholder="Enter your name"/>
+          <input className="bg-slate-300 border p-3 rounded-xl" type="text" name="name" value={updatedUser?.name || ""} onChange={handleChange} placeholder="Enter your name"/>
 
           <label className="font-bold py-3" htmlFor="email">Email:</label>
-          <input className="bg-slate-300 border p-3 rounded-xl" type="email" name="email" value={user.email || ""} disabled/>
+          <input className="bg-slate-300 border p-3 rounded-xl" type="email" name="email" value={updatedUser?.email || ""} disabled/>
 
           <label className="font-bold py-3" htmlFor="role">Role:</label>
-          <input className="bg-slate-300 border p-3 rounded-xl" type="text" value={user.role || ""} disabled />
+          <input className="bg-slate-300 border p-3 rounded-xl" type="text" value={updatedUser?.role || ""} disabled />
 
 
           <label className="font-bold py-3" htmlFor="concerns">User Concerns/Preferences:</label>
           <div className="flex flex-wrap">
             {concerns.map((concern) => (
               <label key={concern} className="flex items-center mr-4">
-                <input type="checkbox" name="concerns" className="mr-2 bg-[#F0BA30]" value={concern} checked={Array.isArray(user.concerns) && user.concerns.includes(concern)} onChange={handleChange}/>
+                <input type="checkbox" name="concerns" className="mr-2 bg-[#F0BA30]" value={concern} checked={Array.isArray(updatedUser?.concerns) && updatedUser?.concerns.includes(concern)} onChange={handleChange}/>
                 {concern}
               </label>
             ))}
           </div>
 
           <label className="font-bold py-3" htmlFor="skinType">Skin Type:</label>
-          <select name="skinType" className="bg-slate-300 border p-3 rounded-xl" value={user.skinType || ""} onChange={handleChange}>
+          <select name="skinType" className="bg-slate-300 border p-3 rounded-xl" value={updatedUser?.skinType || ""} onChange={handleChange}>
             <option value="">Select Skin Type</option>
             {skinTypes.map((type) => <option key={type} value={type}>{type}</option>)}
           </select>
@@ -136,14 +161,14 @@ function Profile() {
          
 
           <label className="font-bold py-3" htmlFor="lifestyle">Lifestyle:</label>
-          <select name="lifestyle" className="bg-slate-300 border p-3 rounded-xl" id="lifestyle" value={user.lifestyle || ""} onChange={handleChange}>
+          <select name="lifestyle" className="bg-slate-300 border p-3 rounded-xl" id="lifestyle" value={updatedUser?.lifestyle || ""} onChange={handleChange}>
             <option value=""> Select lifestyle</option>
             {lifestyle.map((type) => <option key={type} value={type}>{type}</option>)}
           </select>
 
 
           <label className="font-bold py-3" htmlFor="Environ">Environmental Factors:</label>
-            <select name="Environ" id="Environ" className="bg-slate-300 border p-3 rounded-xl" value={user.Environ || "" } onChange={handleChange}>
+            <select name="Environ" id="Environ" className="bg-slate-300 border p-3 rounded-xl" value={updatedUser?.Environ || "" } onChange={handleChange}>
               <option value="">Select Environmental factors</option>
               {Environ.map((type) => <option key={type} value={type}>{type}</option>)}
             </select>
