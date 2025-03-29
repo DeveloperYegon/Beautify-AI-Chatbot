@@ -60,52 +60,7 @@ function Profile() {
     }));
   };
 
-  // // Fetch user data
-  // useEffect(() => {
-
-  //   if (!userId) {
-  //     console.error(" User ID is undefined.");
-  //     return;
-  //   }
-  //   const fetchUserData = async () => {
-  //     try {
-  //       setIsLoading(true);
-  //       const response = await axios.get(`http://localhost:5001/api/user/${userId}`, {
-  //         headers: { Authorization: `Bearer ${token}` },
-  //       });
-  //       console.log("User data:", response.data);
-  //       setUser(response.data);
-  //     } catch (error) {
-  //       console.error("Error fetching user data:", error);
-  //       if (error.response && error.response.status === 401) {
-  //         localStorage.removeItem("authToken");
-  //         window.location.href = "/login"; 
-  //       } else {
-  //         setErrorMessages("Error fetching user data. Please try again later.");
-  //       }
-  //     } finally {
-  //         setIsLoading(false);
-  //     }
-  //   };
-  //   fetchUserData();
-  // }, [userId, token]);// Ensure useEffect re-runs if token changes
-
-  // Handle input change (including checkboxes)
-  // const handleChange = (e) => {
-  //   const { name, value, type, checked } = e.target;
-  //   if (type === "checkbox") {
-  //     setUser((prev) => ({
-  //       ...prev,
-  //       concerns: Array.isArray(prev.concerns) 
-  //         ? checked 
-  //           ? [...prev.concerns, value] 
-  //           : prev.concerns.filter(c => c !== value)
-  //         : [value], // Ensure it's an array
-  //     }));
-  //   } else {
-  //     setUser({ ...user, [name]: value });
-  //   }
-  // };
+  
 
   //  Save updated profile
   const handleSave = async (e) => {

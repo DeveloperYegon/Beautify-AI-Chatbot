@@ -135,7 +135,7 @@ const loadMessages = async (thread_id) => {
 
       {/* Admin Panel (Always Visible at Bottom) */}
       <Link to="/admin">
-      <div className=" bg-white fixed bottom-11 cursor-pointer rounded-lg  py-2 hover:bg-gray-300 transition-all px-2 flex gap-3 items-center border-slate-700 border font-bold">
+      <div className=" bg-white fixed bottom-1 cursor-pointer rounded-lg  py-2 hover:bg-gray-300 transition-all px-2 flex gap-3 items-center border-slate-700 border font-bold">
           <RiAdminLine className='text-4xl' />
           {!isCollapsed && "Index Files"}
       </div>

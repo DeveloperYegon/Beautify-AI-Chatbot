@@ -22,7 +22,7 @@ function Navbar() {
 
   return (
     <nav className='flex justify-around items-center p-5  bg-[#CAD5E2] text-black sticky top-0'>
-      <h1 className='font-bold text-3xl'><Link to="/">Beautify </Link></h1>
+      <h1 className='font-bold text-3xl'><Link to="/">Beautify AI </Link></h1>
 
       <ul className="flex items-center gap-4">
       <li>

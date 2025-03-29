@@ -1,25 +1,15 @@
 import React from 'react'
-import Modal from '../Pages/Modal'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 
-
-function Premium() {
-
-  const [showModal, setShowModal] = useState(false);
-  
-  const openModal = () => {
-    setShowModal(true);
-  };
-
-  const closeModal = () => {
-    setShowModal(false);
-  };
+function Newsletter() {
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm();
   const [errorMessages, setErrorMessages] = useState('');
@@ -32,13 +22,13 @@ function Premium() {
 
     const formData = new FormData();
     
-    formData.append('amount', data.amount);
+    formData.append('email', data.email);
     formData.append('terms', data.terms);
 
 
     try {
         const response= await axios.post('http://localhost:3007/newsletter',{
-            amount: data.amount,
+            email: data.email,
             terms: data.terms ? 1 : 0,
         });
         if (response.status === 201) {
@@ -74,38 +64,26 @@ function Premium() {
         };
       };    
 
-    
+    useEffect(() => {
+        AOS.init({
+          duration: 1000,
+          easing: 'ease-in-out',
+          once: true,
+        });
+      }, []);
 
+
+  //const [showSuccess, setShowSuccess] = useState(false);
+  
 
   return (
-    <main className='h-full pt-5 pb-11 rounded-[10px] bg-white'>
-        
-        <div className=' border md:w-1/2 rounded-[10px] m-3 md:m-auto p-5 border-slate-500'>
-            <h1 className='text-3xl font-bold py-3 text-center'>Annual Premium Subscription</h1>
-            <hr className='w-[50%] h-1 m-auto bg-black' />
+    <main className="mt-[130px] shadow-lg h-screen">
 
-            <p className='text-center py-3 '>Subscribe to our premium plan to access exclusive features.</p>
-            <ul className='text-center'>
-              <li className='border border-amber-300 m-2 font-bold rounded-full p-2'>Get 20% discounts on Products shoppings every month.</li>
-              <li className='border border-amber-300 m-2 font-bold rounded-full p-2'>Free Demartology check-ups and advice annually.</li>
-              <li className='border border-amber-300 m-2 font-bold rounded-full p-2'>Email deliveries and Push notifications on personalized beauty tips.</li>
-             
-              <li className='border border-amber-300 m-2 font-bold rounded-full p-2'>50% discount for our  VIP tickets on our product launch events.</li>
-            </ul>
+        {/* Newsletter Signup */}
+        <section className="mt-10 pt-5">
+            <h2 className="text-xl text-center font-semibold text-purple-600">Stay up to date</h2>
+            <p className="text-gray-600 text-center" >Join Our Newsletter</p>
 
-
-
-            <div onClick={openModal} className='flex justify-center gap-4 mt-5'>
-                <button className='bg-[#F0BA30] p-3 px-5 rounded-full font-bold'>Subscribe @ $1000</button>
-            </div>
-             {/* {showModal && <Modal onClose={closeModal} />} */}
-             <Modal  show={showModal} onClose={closeModal}>
-                {/* Newsletter Signup */}
-        <section className="p-10  w-[80%] h-[80vh]  m-auto">
-            <h2 className="text-xl text-center py-4 font-semibold text-[#000]">Annual Premium Subscription</h2>
-            <hr className='w-[50%] h-1 m-auto bg-black' />
-
-          
             {errorMessages && (
               <div id="authmessage" className='text-red-600 py-2   text-center'>
                 {errorMessages}
@@ -115,47 +93,43 @@ function Premium() {
             <form 
             noValidate
              onSubmit={handleSubmit(onSubmit)} 
-              className=" flex flex-col ">
-
-
-              <label className='py-3 font-bold' htmlFor="amount">Amount:</label>
+              className=" py-10 flex flex-col w-full md:w-1/2 m-auto shadow-lg items-center">
+              
+              <div>
               <input 
-                type="number" 
+                type="email" 
                 autoFocus
-                placeholder="Enter your amount..."
-                {...register("amount", {
-                    required: "amount is required",
+                placeholder="Enter your email..."
+                {...register("email", {
+                    required: "Email is required",
                     pattern: {
-                      value: /^[0-9]+$/,
-                      message: "Invalid amount"
+                      value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+                      message: "Invalid email address"
                     }
                   })}
-                className="border rounded-full px-4 py-3" 
+                className="p-2 border border-gray-300 rounded mb-3 lg:mb-0 lg:mr-2 w-full lg:w-auto" 
                 required
-                disabled
-                value="1000"
               />
-                {errors.amount && (
-                    <span className="text-red-600 text-sm">{errors.amount.message}</span>
+                {errors.email && (
+                    <span className="text-red-600 text-sm">{errors.email.message}</span>
                     )}
-          <div className='flex flex-row my-7'>         
-                 <input type="checkbox" name="terms" id="subscribe"
+              </div> 
+              <div className='flex items-center'>
+              <input type="checkbox" name="terms" id="subscribe"
               {...register("terms", { required: "You must agree to Terms" })}
                className="mx-3"/>
-
-
-              <label htmlFor="subscribe" className="text-sm text-gray-500">I Acknowledge to Go Premium</label>
-              </div>
-
+              <label htmlFor="subscribe" className="text-sm text-gray-500">I Acknowledge to receive newsletter</label>
              
               {errors.terms && (
                     <span className="text-red-600 text-sm">{errors.terms.message}</span>
                     )}
 
                 
-                 
-              <button type="submit" className="px-3 my-3 py-3  rounded-full  bg-[#F0BA30] font-bold text-black"> Proceed to Checkout</button>
+                </div>
+                 <div className='py-3'>
+              <button type="submit" className="px-3 py-1 text-white bg-[#800080] rounded"> Submit</button>
                 
+                </div>
 
               
             </form>
@@ -168,10 +142,6 @@ function Premium() {
               You have submitted successfully!
             </div>
           )} */}
-
-             </Modal>
-            <p className='text-center italic my-4'>*Unsubscribe Anytime*</p>
-        </div>
 
 <ToastContainer
         position="top-center"
@@ -188,4 +158,3 @@ function Premium() {
   )
 }
 
-export default Premium

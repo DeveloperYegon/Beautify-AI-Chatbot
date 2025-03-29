@@ -85,7 +85,7 @@ function Chat() {
   }, [messages]);
 
   return (
-    <main className="flex flex-col w-fit gap-1 md:mx-5 mx-2 p-3 bg-gray-100  overflow-auto">
+    <main className="flex flex-col w-full gap-1 md:mx-5 mx-2 p-3 bg-gray-100  overflow-auto">
 
       {/* Chat Display */}
       <div className="md:p-10 bg-white rounded-2xl mb-10 overflow-auto flex flex-col">
