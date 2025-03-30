@@ -84,6 +84,35 @@ exports.updateUser = async (req, res) => {
   }
 };
 
+//update password
+exports.updatePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) return res.status(400).json({ message: "Invalid password" });
+    user.password = newPassword;
+    await user.save();
+    return res.status(200).json({ status: true, message: "Password updated successfully" });
+  } catch (error) {
+    return res.status(500).json({ status: false, message: error.message });
+  }
+};
+//forgot password
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: "User not found" });
+    user.password = password;
+    await user.save();
+    return res.status(200).json({ status: true, message: "Password updated successfully" });
+  } catch (error) {
+    return res.status(500).json({ status: false, message: error.message });
+  }
+};
+
 //delete user
 
 exports.deleteUser = async (req, res) => {

@@ -225,7 +225,7 @@ const generateProductRecommendation = (query) => {
       // Add metadata (e.g., URL) to each document
       const docsWithMetadata = docs.map((doc) => ({
         ...doc,
-        metadata: { ...doc.metadata, url },
+        zmetadata: { ...doc.metadata, url },
       }));
       console.timeEnd("Adding metadata");
 
@@ -363,7 +363,27 @@ console.log("Validated Thread ID:", validatedThreadId);
     return res.status(500).json({ error: "Failed to process the request" });
   }
 });
+app.get("/fetch-all", async (req, res) => {
 
+ try {
+      // Fetch all documents from the vector store
+      const allDocs = await vectorStore.similaritySearch("", 1000); // Adjust limit as needed
+  
+      if (allDocs.length === 0) {
+        return res.status(404).json({ message: "No indexed documents found." });
+      }
+  
+      // Extract and return the documents
+      const indexedDocs = allDocs.map((doc) => ({
+        content: doc.pageContent,
+        metadata: doc.metadata, // Includes URL, PDF path, etc.
+      }));
+      return res.json({ indexedDocs });
+    } catch (error) {
+      console.error("Error fetching indexed documents:", error);
+      return res.status(500).json({ error: "Failed to fetch indexed documents" });
+    }
+  });
 
 // clean up old conversation histories
 const cleanupOldSessions = async () => {
@@ -376,13 +396,14 @@ const cleanupOldSessions = async () => {
   }
 };
 
+
 // Run cleanup every 24 hours
 setInterval(cleanupOldSessions, 24 * 60 * 60 * 1000);
-
-
 // Routes
 app.use('/api', require('./routes/userroutes'));
 app.use('/chats', require('./routes/chatroutes'));
+// app.use('/auth', require('./routes/authroutes'));
+app.use("/resources", require("./routes/resourceroutes"));
 
 
 // Start the server

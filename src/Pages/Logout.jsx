@@ -24,7 +24,7 @@ const LogoutButton = () => {
 
     return (
         <main className=" flex justify-center h-[50vh] border rounded-2xl m-3 items-center">
-            <button className="bg-[#F13934] rounded-md p-2 hover:bg-red-700 font-bold text-black transition duration-300" onClick={handleLogout}>
+            <button className="bg-[#F0BA30] rounded-md p-3 font-bold text-black transition duration-300" onClick={handleLogout}>
                 Logout
             </button>
             

@@ -26,6 +26,7 @@ function Sidebar({ isCollapsed, toggleSidebar }) {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       setChats(response.data);
+      console.log("Chats fetched:", response.data);
     } catch (error) {
       console.error("Error fetching chats:", error);
     }
@@ -43,23 +44,39 @@ const handleNewChat = async () => {
       {},
       { headers: { Authorization: `Bearer ${authToken}` } }
     );
-    // If a new thread ID is received, update Redux state
-    if (response.data?.thread_id) {
-      dispatch(setThreadId(response.data.thread_id)); 
-    }
+
     if (!response.data?.thread_id) throw new Error("Invalid response from server");
 
+    const newChat = {
+      thread_id: response.data.thread_id,
+      messages: [{ role: "ai", content: "**Hello!** How can I help you today?" }],
+      updated_at: new Date().toISOString(), // Set current date
+    };
+
+    // Update local state immediately
+    setChats((prevChats) => [newChat, ...prevChats]);
+
+    // Save thread ID in local storage
     localStorage.setItem("chatID", response.data.thread_id);
-    setMessages([{ role: "ai", content: "**Hello!** I'm here to chat with you." }]);
+
+    // Update Redux state
+    dispatch(setThreadId(response.data.thread_id));
+    dispatch(setMessages(newChat.messages));
+
+    // Update URL without reloading the page
+    window.history.pushState({}, "", `/chat/${newThreadId}`);
+
+    // // Immediately load the new chat
+    // loadMessages(response.data.thread_id);
 
     console.log("New chat started:", response.data);
-    
 
   } catch (error) {
     console.error("Error starting new chat:", error);
     alert("Failed to start a new chat. Please try again.");
   }
 };
+
 
 
 const loadMessages = async (thread_id) => {
@@ -71,11 +88,14 @@ const loadMessages = async (thread_id) => {
     if (!response.data) throw new Error("Invalid response from server");
 
     localStorage.setItem("chatID", thread_id);
+
     //  Update Redux global state with messages
     dispatch(setMessages(response.data));
-
     //  Update Redux thread ID
     dispatch(setThreadId(thread_id));
+
+    // Update URL
+    window.history.pushState({}, "", `/chat/${thread_id}`);
 
     console.log("Chat messages loaded:", response.data);
     
@@ -135,7 +155,7 @@ const loadMessages = async (thread_id) => {
 
       {/* Admin Panel (Always Visible at Bottom) */}
       <Link to="/admin">
-      <div className=" bg-white fixed bottom-1 cursor-pointer rounded-lg  py-2 hover:bg-gray-300 transition-all px-2 flex gap-3 items-center border-slate-700 border font-bold">
+      <div className=" bg-white fixed bottom-11 cursor-pointer rounded-lg  py-2 hover:bg-gray-300 transition-all px-2 flex gap-3 items-center border-slate-700 border font-bold">
           <RiAdminLine className='text-4xl' />
           {!isCollapsed && "Index Files"}
       </div>

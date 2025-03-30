@@ -1,98 +1,168 @@
-import { useState } from 'react'
-import axios from "axios";
-
+import React,{useEffect,useState} from 'react'
+import Url from './Url'
+import Pdf from './Pdf'
+import axios from 'axios';
+import { useSelector } from 'react-redux';
 
 function Admin() {
-    const [url, setUrl] = useState('');
-    const [pdf, setPdf] = useState(null);
-    const [loading, setLoading] = useState(false);
+    const [users, setUsers] = useState([]);
+    const [indexedDocs, setIndexedDocs] = useState([]);
+    const [loadingUsers, setLoadingUsers] = useState(true);
+    const [loadingDocs, setLoadingDocs] = useState(true);
 
-    // Handle input changes
-    const handleUrlChange = (e) => setUrl(e.target.value);
-    const handlePdfChange = (e) => setPdf(e.target.files[0]);
-   
+    // Get authToken from Redux global state
+    const authToken = useSelector((state) => state.auth.token);
+
+    console.log("authToken:", authToken);
 
 
-    /** ✅ Handle URL indexing submission **/
-    const handleUrlSubmit = async (e) => {
-        e.preventDefault();
-        if (!url.trim()) return;
+ // Fetch users (Protected Route)
+    useEffect(() => {
+        // Stop execution if no authToken
+        if (!authToken) return; 
 
-        setLoading(true);
-        try {
-            await axios.post("http://localhost:5001/load-url", { url });
-            alert("✅ Website URL indexed successfully!");
-        } catch (error) {
-            console.error("🔥 Error indexing URL:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    /**  Handle PDF upload submission **/
-    const handlePdfSubmit = async (e) => {
-        e.preventDefault();
-        if (!pdf) return;
-
-        setLoading(true);
-        const formData = new FormData();
-        formData.append("pdf", pdf);
-
-        try {
-            await axios.post("http://localhost:5001/upload-pdf", formData, {
-                headers: { "Content-Type": "multipart/form-data" },
+        async function fetchUsers() {
+            try {
+                const response = await axios.get("http://localhost:5001/api/users",  {
+                    headers: {
+                        Authorization: `Bearer ${authToken}`, 
+                        "Content-Type": "application/json"
+                    }
             });
-            alert(" PDF indexed successfully!");
-        } catch (error) {
-            console.error(" Error uploading PDF:", error);
-        } finally {
-            setLoading(false);
+                setUsers(response.data);
+                console.log("Users:", response.data);
+            } catch (error) {
+                console.error("Error fetching users:", error);
+            } finally {
+                setLoadingUsers(false);
+            }
         }
-    };
 
-    return (
-        <main className="h-full p-8">
-            <h3 className="text-center text-4xl font-bold m-5">Resource Indexing</h3>
+        fetchUsers();
+    }, [authToken]); // Re-run when authToken changes
 
-            {/* URL Indexing Form */}
-            <form noValidate onSubmit={handleUrlSubmit} className="flex flex-col border-2 rounded-lg p-3 justify-center">
-            {loading && <p className="text-center text-red-500">Processing...</p>}
 
-                <label className="font-bold py-3" htmlFor="web">Website URL:</label>
-                <input
-                    type="text"
-                    className="bg-white p-4 rounded-2xl border-2 text-black"
-                    value={url}
-                    onChange={handleUrlChange}
-                    placeholder="Enter website URL"
-                />
-                <input
-                    type="submit"
-                    className="bg-[#000] font-bold my-3 m-auto w-1/2 text-white px-4 py-2 rounded-lg cursor-pointer"
-                    value={loading ? "Indexing..." : "Index"}
-                    disabled={loading}
-                />
-            </form>
+ // Fetch indexed documents (Protected Route)
+ useEffect(() => {
+    if (!authToken) return; // Stop execution if no authToken
 
-            <p className="text-center font-bold text-4xl m-10">or</p>
+    async function fetchIndexedDocuments() {
+        try {
+            const response = await axios.get("http://127.0.0.1:5001/fetch-all" );
+            setIndexedDocs(response.data.indexedDocs || []);
+            console.log("Indexed documents:", response.data);
+        } catch (error) {
+            console.error("Error fetching indexed documents:", error);
+        } finally {
+            setLoadingDocs(false);
+        }
+    }
 
-            {/* PDF Upload Form */}
-            <form noValidate onSubmit={handlePdfSubmit} className="flex flex-col border-2 rounded-lg p-3 justify-center">
-                <label className="font-bold py-3" htmlFor="web">Upload PDF:</label>
-                <input
-                    type="file"
-                    className="bg-white p-4 rounded-2xl border-2 text-black"
-                    onChange={handlePdfChange}
-                />
-                <input
-                    type="submit"
-                    className="bg-[#000] my-3 m-auto w-1/2 text-white px-4 py-2 rounded-lg cursor-pointer"
-                    value={loading ? "Uploading..." : "Index"}
-                    disabled={loading}
-                />
-            </form>
-        </main>
-    );
+    fetchIndexedDocuments();
+}, [authToken]); // Re-run when authToken changes
+
+    
+  return (
+    <main className=' w-full h-full overflow-y-auto'>
+    <div className="flex border rounded m-3 justify-center md:flex-row flex-col">
+        <Url />
+        <Pdf />
+    </div>
+
+    {/* Users Section */}
+    <div className="flex flex-col border rounded m-3  justify-center items-center">
+
+        <h1 className="text-2xl font-bold my-3">Users</h1>
+        <hr className='w-[80%] m-auto h-1 bg-black' />
+
+
+        {loadingUsers ? (
+  <p>Loading users...</p>
+) : users.length > 0 ? (
+  <div className="overflow-x-auto">
+    <table className="table-auto m-5 rounded-lg border-collapse border border-gray-300 w-full shadow-lg">
+      {/* Table Head */}
+      <thead className="border border-gray-300 bg-[#F0BA30] text-black font-bold text-lg">
+        <tr>
+          <th className="px-4 py-2 border border-gray-300">Name</th>
+          <th className="px-4 py-2 border border-gray-300">Email</th>
+          <th className="px-4 py-2 border border-gray-300">Role</th>
+          <th className="px-4 py-2 border border-gray-300">Premium</th>
+          <th className="px-4 py-2 border border-gray-300">Joined On</th>
+          <th className="px-4 py-2 border border-gray-300">Updated On</th>
+        </tr>
+      </thead>
+
+      {/* Table Body */}
+      <tbody key={users.id}>
+        {users.map((user) => (
+          <tr key={user.id} className="border border-gray-300 hover:bg-gray-100">
+            <td className="px-4 py-2 border border-gray-300">{user.name}</td>
+            <td className="px-4 py-2 border border-gray-300">{user.email}</td>
+            <td className="px-4 py-2 border border-gray-300">{user.role}</td>
+            <td className="px-4 py-2 border border-gray-300">
+              {user.isPremium ? "✅ Yes" : "❌ No"}
+            </td>
+            <td className="px-4 py-2 border border-gray-300">
+              {new Date(user.createdAt).toLocaleDateString()}
+            </td>
+            <td className="px-4 py-2 border border-gray-300">
+              {new Date(user.updatedAt).toLocaleDateString()}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+) : (
+  <p>No users found.</p>
+)}
+
+    </div>
+
+    {/* Indexed Documents Section */}
+    <div className="flex mb-20 py-3 border rounded m-3 flex-col justify-center items-center mt-5">
+        <h1 className="text-2xl font-bold">Indexed Documents</h1>
+        <hr className='w-[80%] m-auto h-1 bg-black' />
+
+       {loadingDocs ? (
+    <p>Loading documents...</p>
+) : indexedDocs && indexedDocs.length > 0 ? (
+    <table>
+      <thead>
+        <th>
+          file name
+        </th>
+        <th>
+          total pages
+        </th>
+      </thead>
+      <tbody>
+
+        {indexedDocs.map((doc) => {
+            // Ensure metadata and source exist
+            const fileName = doc.metadata?.source?.split("/").pop() || "Unknown File";
+            const totalPages = doc.metadata?.pdf?.totalPages || "N/A";
+            return (
+              <tr>
+               <td>{fileName} </td>
+              <td>{totalPages}</td>
+              </tr>
+                );
+              
+        })}
+      </tbody>
+        </table>
+
+) : (
+    <p>No indexed documents found.</p>
+)}
+
+
+
+    </div>
+</main>
+  )
 }
 
-export default Admin;
+export default Admin

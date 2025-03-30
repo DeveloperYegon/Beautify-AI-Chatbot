@@ -5,52 +5,49 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 
-function Signup() {
+function ResetPassword() {
   const { register, handleSubmit, formState: { errors }, reset, watch } = useForm();
   const [errorMessages, setErrorMessages] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   // Toast notification for success 
-  const notifySuccess = () => toast("Signed up successfully!");
+  const notifySuccess = () => toast("Password reset successfully!");
 
   // Submit handler
   const onSubmit = async (data) => {
     setIsLoading(true); // Show loading indicator
-    // const formData = new FormData();
-        
-    // formData.append('name', data.name);
-    // formData.append('password', data.password);
-
+    
     try {
-    // Send POST request to backend
-      const response = await axios.post('http://localhost:5001/api/register',{
+      // Send PUT request to backend (Ensure your backend supports PUT)
+      const response = await axios.post("http://localhost:5001/api/users/forgot-password", {
         email: data.email,
-        password:data.password
+        password: data.password
       });
-      if (response.status === 201) {
-      notifySuccess(); // Show success toast
-      reset(); // Reset the form
-      setErrorMessages(''); // Clear any previous errors
-      setTimeout(() => {
-        navigate('/login'); // Redirect to login page after a short delay
-      }, 2000);
-    } else {
-       // Handle unexpected statuses
-       setErrorMessages(err.message);
-       console.log(err.message);
-       
+  
+      if (response.status === 200) {
+        notifySuccess(); 
+        reset(); // 
+        setErrorMessages(''); 
+        setTimeout(() => {
+          navigate('/login'); 
+        }, 2000);
+      } else {
+        setErrorMessages(response.data.message || "Something went wrong");
+        console.log(response.data.message);
       }
     } catch (err) {
-      setErrorMessages(err.message); // Show error message
+      console.log(err);
+      setErrorMessages(err.response?.data?.message || "Failed to reset password"); 
       setIsLoading(false); // Stop loading indicator
     }
   };
+  
 
   return (
     <main className='h-full p-5 rounded-[10px] bg-white'>
       <div className='border rounded-[10px] bg-white md:w-1/2 m-auto p-5 border-slate-500'>
-        <h3 className='text-center py-5 text-[#F13934] text-2xl font-bold'>CREATE ACCOUNT</h3>
+        <h3 className='text-center py-5 text-[#F13934] text-2xl font-bold'>RESET PASSWORD</h3>
         <hr className='w-[80%] m-auto h-1 bg-black' />
 
         {/* Error Messages */}
@@ -60,7 +57,7 @@ function Signup() {
           </div>
         )}
 
-        {/* Signup Form */}
+        {/* ResetPassword Form */}
         <form noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col">
           {/* Email Field */}
           <label htmlFor="mail" className='my-4 font-bold'>Email:</label>
@@ -117,7 +114,7 @@ function Signup() {
             type="submit"
             value={isLoading ? 'Submitting...' : 'Submit'}
             disabled={isLoading}
-            className='border border-slate-950 bg-[#F0BA30] rounded-full p-3 my-4 text-black font-bold cursor-pointer'
+            className='border border-slate-950 bg-[#F0BA30] rounded-full p-3 my-4 text-white font-bold cursor-pointer'
           />
         </form>
 
@@ -144,4 +141,4 @@ function Signup() {
   );
 }
 
-export default Signup;
+export default ResetPassword;

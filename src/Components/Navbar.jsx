@@ -1,4 +1,4 @@
-import React,{useEffect,useState} from 'react'
+import React from 'react'
 import { FaBell } from "react-icons/fa6";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../redux/authSlice"; // Import action
@@ -33,12 +33,12 @@ function Navbar() {
           <Link to="/premium-subscription">
           <li className="flex items-center border font-bold rounded-full hover:bg-[#F0BA30] p-2  gap-2">
           <IoDiamond className='text-3xl  text-[#000]' />
-          <span>Go Premium</span> 
+          <span className='md:flex hidden '>Go-Premium</span> 
           </li>
             </Link>
         {isAuthenticated ? (
           <>
-            <button onClick={handleLogout} className="border border-white text-black py-3 px-3 bg-[#F0BA30] font-bold rounded-full">
+            <button onClick={handleLogout} className="border hidden md:flex border-white text-black py-3 px-3 bg-[#F0BA30] font-bold rounded-full">
               Logout
             </button>
             <li className="bg-[#000000] border-white text-white p-3 font-bold rounded-full">

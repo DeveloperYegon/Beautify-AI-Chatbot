@@ -104,14 +104,18 @@ function Login() {
 
                     <input
                         type="submit"
-                        className='border border-slate-950 text-white font-bold rounded-full p-3 mt-7 bg-black'
+                        className='border border-slate-950 text-black font-bold rounded-full p-3 mt-7 bg-[#F0BA30] cursor-pointer'
                         value={isLoading ? 'Submitting...' : 'Submit'}
                         disabled={isLoading}
                     />
                 </form>
 
                 <p className='text-center mt-3'>
-                        Forgot your password? <span  className='text-[#F13934] font-bold cursor-pointer'>Reset Password</span>
+                        Forgot your password? <span  className='text-[#F13934] font-bold cursor-pointer'>
+                            <Link to="/reset-password">
+                            Reset Password
+                            </Link>
+                            </span>
                     </p>
 
                   

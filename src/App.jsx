@@ -10,6 +10,7 @@ import Signup from "./Pages/Signup";
 import Admin from "./Pages/Admin";
 import ProtectedRoute from "../src/Pages/ProtectedRoute";
 import Premium from "./Pages/Premium";
+import ResetPassword from "./Pages/ResetPassword";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/" element={<Dashboard />} />
         <Route path="/login" element={<Login/>} />
         <Route path="/signup" element={<Signup/>} />
+          <Route path="/reset-password" element={<ResetPassword/>} />
          {/* Protect Admin Route */}
          <Route element={<ProtectedRoute allowedRoles={["admin"]} />}> 
           <Route path="/admin" element={<Admin />} />

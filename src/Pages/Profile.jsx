@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import {jwtDecode} from "jwt-decode";
 import Logout from "./Logout";
@@ -97,11 +96,11 @@ function Profile() {
           <input className="bg-slate-300 border p-3 rounded-xl" type="text" value={updatedUser?.role || ""} disabled />
 
 
-          <label className="font-bold py-3" htmlFor="concerns">User Concerns/Preferences:</label>
-          <div className="flex flex-wrap">
+          <label className="font-bold py-2" htmlFor="concerns">User Concerns/Preferences:</label>
+          <div className="flex bg-slate-300 border rounded-xl p-3 my-5 flex-col ">
             {concerns.map((concern) => (
-              <label key={concern} className="flex items-center mr-4">
-                <input type="checkbox" name="concerns" className="mr-2 bg-[#F0BA30]" value={concern} checked={Array.isArray(updatedUser?.concerns) && updatedUser?.concerns.includes(concern)} onChange={handleChange}/>
+              <label key={concern} className="flex  items-center mr-4">
+                <input type="checkbox" name="concerns" className="mr-2  bg-[#F0BA30]" value={concern} checked={Array.isArray(updatedUser?.concerns) && updatedUser?.concerns.includes(concern)} onChange={handleChange}/>
                 {concern}
               </label>
             ))}
@@ -128,8 +127,65 @@ function Profile() {
               {Environ.map((type) => <option key={type} value={type}>{type}</option>)}
             </select>
 
+            <label className="font-bold py-3" htmlFor="age">Age:</label>
+            <input className="bg-slate-300 border p-3 rounded-xl" type="number" name="age" value={updatedUser?.age || ""} onChange={handleChange} placeholder="Enter your age"/>
+            <label className="font-bold py-3" htmlFor="gender">Gender:</label>
+            <select name="gender" id="gender" className="bg-slate-300 border p-3 rounded-xl" value={updatedUser?.gender || ""} onChange={handleChange}>
+              <option value="">Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+            <label className="font-bold py-3" htmlFor="hairType">Hair Type:</label>
+            <select name="hairType" id="hairType" className="bg-slate-300 border p-3 rounded-xl" value={updatedUser?.hairType || ""} onChange={handleChange}>
+              <option value="">Select Hair Type</option>
+              <option value="Straight">Straight</option>
+              <option value="Wavy">Wavy</option>
+              <option value="Curly">Curly</option>
+              <option value="Kinky">Kinky</option>
+            </select>
+            <label className="font-bold py-3" htmlFor="hairColor">Hair Color:</label>
+            <select name="hairColor" id="hairColor" className="bg-slate-300 border p-3 rounded-xl" value={updatedUser?.hairColor || ""} onChange={handleChange}>
+              <option value="">Select Hair Color</option>
+              <option value="Black">Black</option>
+              <option value="Brown">Brown</option>
+              <option value="Blonde">Blonde</option>
+              <option value="Red">Red</option>
+            </select>
+            <label className="font-bold py-3" htmlFor="eyeColor">Eye Color:</label>
+            <select name="eyeColor" id="eyeColor" className="bg-slate-300 border p-3 rounded-xl" value={updatedUser?.eyeColor || ""} onChange={handleChange}>
+              <option value="">Select Eye Color</option>
+              <option value="Brown">Brown</option>
+              <option value="Blue">Blue</option>
+              <option value="Green">Green</option>
+              <option value="Hazel">Hazel</option>
+            </select>
+            <div className="flex items-center gap-4 bg-slate-300 border rounded-xl p-3 my-5"> 
+            <label className=" " htmlFor="premium">Premium:</label>
+            <input type="checkbox" name="isPremium" id="premium" className="bg-[#F0BA30]" checked={updatedUser?.isPremium || false} disabled onChange={handleChange}/>
+            </div>
+            <div className="flex items-center gap-4 bg-slate-300 border rounded-xl p-3 my-5"> 
+            <label className=" " htmlFor="terms">Terms:</label>
+            <input type="checkbox" name="termsAccepted" disabled id="terms" className="bg-[#F0BA30]" checked={updatedUser?.termsAccepted || false} onChange={handleChange}/>
+            </div>
+            <label className="" htmlFor="subscriptionAmount">Subscription Amount:</label>
+            <input type="number" name="subscriptionAmount" disabled id="subscriptionAmount" className="bg-slate-300 border p-3 rounded-xl" value={updatedUser?.subscriptionAmount || ""} onChange={handleChange}/>
+            <label className="" htmlFor="subscriptionDate">Subscription Date:</label>
+            <input type="date" name="subscriptionDate" disabled id="subscriptionDate" className="bg-slate-300 border p-3 rounded-xl" value={updatedUser?.subscriptionDate ? updatedUser.subscriptionDate.split("T")[0] : ""} onChange={handleChange}/>
+            <label className="" htmlFor="subscriptionEndDate">Subscription End Date:</label>
+            <input type="date" name="subscriptionExpiry" disabled id="subscriptionEndDate" className="bg-slate-300 border p-3 rounded-xl" value={updatedUser?.subscriptionExpiry ?updatedUser.subscriptionExpiry.split("T")[0] : ""} onChange={handleChange}/>
+            <label className="" htmlFor="subscriptionPlan">Subscription Plan:</label>
+            <input type="text" name="subscriptionPlan" disabled id="subscriptionPlan" className="bg-slate-300 border p-3 rounded-xl" value={updatedUser?.subscriptionPlan || ""} onChange={handleChange}/>
+            <label className="" htmlFor="subscriptionStatus">Subscription Status:</label>
+            <input type="text" name="subscriptionStatus" disabled id="subscriptionStatus" className="bg-slate-300 border p-3 rounded-xl" value={updatedUser?.subscriptionStatus || ""} onChange={handleChange}/>
+            <label classname="" htmlFor="skinTone">Skin Tone:</label>
+            <select name="skinTone" id="skinTone" className="bg-slate-300 border p-3 rounded-xl" value={updatedUser?.skinTone || ""} onChange={handleChange}>
+              <option value="">Select Skin Tone</option>
+              <option value="Fair">Fair</option>
+              <option value="Medium">Medium</option>
+              <option value="Dark">Dark</option>
+            </select>
           {/*  Correct Save Button */}
-          <button className="bg-[#000] text-white px-4 py-2 rounded-lg mt-3" onClick={handleSave} disabled={isLoading}>
+          <button className="bg-[#F0BA30] text-black font-black px-4 py-3 rounded-lg mt-5" onClick={handleSave} disabled={isLoading}>
             {isLoading ? "Saving..." : "Save"}
           </button>
         </form>

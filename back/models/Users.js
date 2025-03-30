@@ -31,6 +31,51 @@ skinTone:{
     type:String,
     // required:true
 },
+isPremium:{
+    type:Boolean,
+    default:false,
+    // required:true
+},
+subscriptionAmount:{    
+    type:Number,
+    default:0,
+    // required:true
+},
+termsAccepted:{
+    type:Boolean,
+    default:false,
+    // required:true
+},
+eyeColor:{
+    type:String,
+    // required:true
+},
+hairColor:{
+    type:String,
+    // required:true
+},
+hairType:{
+    type:String,
+    // required:true
+},
+subscriptionPlan:{
+    type:String,
+    default:"annual",
+    // required:true
+},
+subscriptionDate:{
+    type:Date,
+    // required:true
+},
+subscriptionExpiry:{
+    type:Date,
+    // required:true
+},
+subscriptionStatus:{
+    type:String,
+    default:"inactive",
+    // required:true
+},
 skinType:{
     type:String,
     // required:true
