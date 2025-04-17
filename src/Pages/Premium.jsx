@@ -54,13 +54,12 @@ function Premium() {
         isPremium: true,
         subscriptionAmount: 1000,
         subscriptionStatus: "active",
-        subscriptionStatus: "active",
-  subscriptionDate: new Date().toISOString().split("T")[0], // Current date in yyyy-MM-dd format
-  subscriptionExpiry: (() => {
-    const expiryDate = new Date();
-    expiryDate.setFullYear(expiryDate.getFullYear() + 1); // Add 1 year
-    return expiryDate.toISOString().split("T")[0]; // Extract yyyy-MM-dd
-  })(),
+        subscriptionDate: new Date().toISOString().split("T")[0], // Current date in yyyy-MM-dd format
+          subscriptionExpiry: (() => {
+         const expiryDate = new Date();
+        expiryDate.setFullYear(expiryDate.getFullYear() + 1); // Add 1 year
+        return expiryDate.toISOString().split("T")[0]; // Extract yyyy-MM-dd
+        })(),
         termsAccepted: true
       };
 

@@ -303,7 +303,7 @@ app.post("/ask", async (req, res) => {
     const validatedThreadId = thread_id && typeof thread_id === "string" && thread_id.trim().length > 0
     ? thread_id
     : uuidv4();
-console.log("Validated Thread ID:", validatedThreadId);  
+    console.log("Validated Thread ID:", validatedThreadId);  
 
     // Retrieve or initialize conversation history
     const config = { configurable: { thread_id: validatedThreadId } };
@@ -327,7 +327,7 @@ console.log("Validated Thread ID:", validatedThreadId);
         $set: {
           user_id: userId,
           updated_at: new Date(),
-          title: `Chat about ${question.substring(0, 20)}...`, // Title update
+          title: `** ${question.substring(0, 20)}...`, // Title update
         },
         $push: {
           messages: {

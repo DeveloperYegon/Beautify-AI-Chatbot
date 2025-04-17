@@ -18,7 +18,6 @@ function Sidebar({ isCollapsed, toggleSidebar }) {
   console.log("authToken",authToken);
 
   // Fetch user's chat history
- useEffect(() => {
   const fetchChats = async () => {
     if (!authToken) return; // Prevent API call if token is missing
     try {
@@ -31,13 +30,12 @@ function Sidebar({ isCollapsed, toggleSidebar }) {
       console.error("Error fetching chats:", error);
     }
   };
-
+  
+ useEffect(() => {
   fetchChats();
 }, [authToken]);
 
-
-
-const handleNewChat = async () => {
+const handleNewChat = async (thread_id) => {
   try {
     const response = await axios.post(
       "http://127.0.0.1:5001/chats/start-chat",
@@ -49,6 +47,7 @@ const handleNewChat = async () => {
 
     const newChat = {
       thread_id: response.data.thread_id,
+      title: "New Conversation",
       messages: [{ role: "ai", content: "**Hello!** How can I help you today?" }],
       updated_at: new Date().toISOString(), // Set current date
     };
@@ -64,10 +63,7 @@ const handleNewChat = async () => {
     dispatch(setMessages(newChat.messages));
 
     // Update URL without reloading the page
-    window.history.pushState({}, "", `/chat/${newThreadId}`);
-
-    // // Immediately load the new chat
-    // loadMessages(response.data.thread_id);
+   window.history.pushState({}, "", `/chat/${thread_id}`);
 
     console.log("New chat started:", response.data);
 
@@ -136,7 +132,7 @@ const loadMessages = async (thread_id) => {
         {!isCollapsed && (
           <>
             <span className="font-medium">
-              {chat.messages?.[0]?.content?.substring(0, 30) || "New Chat"}...
+            {chat.messages?.[0]?.content?.substring(0, 30) || "New Chat"}...
             </span>
             <br />
             <span className="text-xs text-gray-600">
