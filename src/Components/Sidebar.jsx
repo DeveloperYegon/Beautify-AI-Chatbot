@@ -1,3 +1,4 @@
+// src/Components/Sidebar.jsx
 import React ,{useEffect,useState} from 'react';
 import { MdAdd } from "react-icons/md";
 import { HiMiniBars3BottomLeft } from "react-icons/hi2";
@@ -7,27 +8,30 @@ import axios from 'axios';
 import { useSelector, useDispatch } from "react-redux";
 import { setThreadId } from "../redux/threadSlice";
 import { setMessages } from "../redux/chatSlice";
+import { useNavigate } from 'react-router-dom';
 
 
 function Sidebar({ isCollapsed, toggleSidebar }) {
   const dispatch = useDispatch();
    const [chats, setChats] = useState([]);
+   const navigate = useNavigate();
   // Watch for token updates
   const authToken = useSelector((state) => state.auth.token);
-
-  console.log("authToken",authToken);
+  
+  const apiUrl = import.meta.env.VITE_API_KEY;
+  //console.log("authToken",authToken);
 
   // Fetch user's chat history
   const fetchChats = async () => {
     if (!authToken) return; // Prevent API call if token is missing
     try {
-      const response = await axios.get("http://127.0.0.1:5001/chats/user-chats", {
+      const response = await axios.get(`${apiUrl}:5001/api/chats/user-chats`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       setChats(response.data);
       console.log("Chats fetched:", response.data);
     } catch (error) {
-      console.error("Error fetching chats:", error);
+      //console.error("Error fetching chats:", error);
     }
   };
   
@@ -38,7 +42,7 @@ function Sidebar({ isCollapsed, toggleSidebar }) {
 const handleNewChat = async (thread_id) => {
   try {
     const response = await axios.post(
-      "http://127.0.0.1:5001/chats/start-chat",
+      `${apiUrl}:5001/api/chats/start-chat`,
       {},
       { headers: { Authorization: `Bearer ${authToken}` } }
     );
@@ -65,7 +69,7 @@ const handleNewChat = async (thread_id) => {
     // Update URL without reloading the page
    window.history.pushState({}, "", `/chat/${thread_id}`);
 
-    console.log("New chat started:", response.data);
+   // console.log("New chat started:", response.data);
 
   } catch (error) {
     console.error("Error starting new chat:", error);
@@ -77,7 +81,7 @@ const handleNewChat = async (thread_id) => {
 
 const loadMessages = async (thread_id) => {
   try {
-    const response = await axios.get(`http://127.0.0.1:5001/chats/chat-messages/${thread_id}`, {
+    const response = await axios.get(`${apiUrl}:5001/api/chats/chat-messages/${thread_id}`, {
       headers: { Authorization: `Bearer ${authToken}` },
     });
 
@@ -87,6 +91,7 @@ const loadMessages = async (thread_id) => {
 
     //  Update Redux global state with messages
     dispatch(setMessages(response.data));
+
     //  Update Redux thread ID
     dispatch(setThreadId(thread_id));
 
@@ -96,7 +101,7 @@ const loadMessages = async (thread_id) => {
     console.log("Chat messages loaded:", response.data);
     
   } catch (error) {
-    console.error("Error loading chat:", error);
+   // console.error("Error loading chat:", error);
     alert("Failed to load chat messages. Please try again.");
   }
 };

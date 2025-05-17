@@ -1,3 +1,4 @@
+// src/Pages/Premium.jsx
 import React, { useEffect, useState } from 'react';
 import Modal from '../Pages/Modal';
 import { useForm } from 'react-hook-form';
@@ -26,7 +27,7 @@ function Premium() {
     const decodedToken = jwtDecode(token);
     userId = decodedToken.userId;
   } catch (error) {
-    console.error("Error decoding token:", error);
+    // console.error("Error decoding token:", error);
     navigate("/login"); // Redirect if token is invalid
   }
 
@@ -71,7 +72,7 @@ function Premium() {
       }, 2000);
     } catch (error) {
       toast.error("Error updating profile. Please try again.");
-      console.error("Update Error:", error);
+      // console.error("Update Error:", error);
     }
   };
 

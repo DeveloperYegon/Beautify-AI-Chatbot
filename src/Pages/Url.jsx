@@ -1,3 +1,4 @@
+// src/Pages/Url.jsx
 import { useState } from 'react'
 import axios from "axios";
 
@@ -5,6 +6,7 @@ import axios from "axios";
 function Admin() {
     const [url, setUrl] = useState('');
     const [loading, setLoading] = useState(false);
+    const apiUrl = import.meta.env.VITE_API_KEY;
 
     // Handle input changes
     const handleUrlChange = (e) => setUrl(e.target.value);
@@ -18,10 +20,10 @@ function Admin() {
 
         setLoading(true);
         try {
-            await axios.post("http://localhost:5001/load-url", { url });
+            await axios.post(`${apiUrl}:5001/api/documents/load-url`, { url });
             alert(" Website URL indexed successfully!");
         } catch (error) {
-            console.error(" Error indexing URL:", error);
+            // console.error(" Error indexing URL:", error);
         } finally {
             setLoading(false);
         }

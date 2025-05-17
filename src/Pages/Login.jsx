@@ -1,3 +1,4 @@
+// src/Pages/Login.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -15,6 +16,7 @@ function Login() {
     const [isLoading, setIsLoading] = useState(false);
     const [email, setEmail] = useState('');
     const dispatch = useDispatch();
+    const apiUrl = import.meta.env.VITE_API_KEY;
     
 
 
@@ -30,12 +32,12 @@ function Login() {
        
 
         try {   
-            const response= await axios.post('http://localhost:5001/api/login', {
+            const response= await axios.post(`${apiUrl}:5001/api/login`, {
                 email:data.email,
                 password:data.password
             });
 
-            console.log(" Login Response:", response.data);
+            // console.log(" Login Response:", response.data);
             if (response.status === 200) {
             notifySuccess();
             dispatch(loginSuccess({ user: response.data.user, token: response.data.token }));
@@ -50,7 +52,7 @@ function Login() {
                 setErrorMessages("Unexpected error. Please try again.");
             }
         } catch (err) {
-            console.error("Error during login:", err.response?.data || err.message);
+            // console.error("Error during login:", err.response?.data || err.message);
             setErrorMessages("Invalid Email/Password");
             notifyError("Invalid Email/Password");
         } finally {

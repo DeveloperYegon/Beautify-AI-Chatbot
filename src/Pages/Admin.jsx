@@ -1,3 +1,4 @@
+// src/Pages/Admin.jsx
 import React,{useEffect,useState} from 'react'
 import Url from './Url'
 import Pdf from './Pdf'
@@ -12,8 +13,9 @@ function Admin() {
 
     // Get authToken from Redux global state
     const authToken = useSelector((state) => state.auth.token);
+    const apiUrl = import.meta.env.VITE_API_KEY;
 
-    console.log("authToken:", authToken);
+    //console.log("authToken:", authToken);
 
 
  // Fetch users (Protected Route)
@@ -23,16 +25,16 @@ function Admin() {
 
         async function fetchUsers() {
             try {
-                const response = await axios.get("http://localhost:5001/api/users",  {
+                const response = await axios.get(`${apiUrl}:5001/api/users`,{
                     headers: {
                         Authorization: `Bearer ${authToken}`, 
                         "Content-Type": "application/json"
                     }
             });
                 setUsers(response.data);
-                console.log("Users:", response.data);
+               // console.log("Users:", response.data);
             } catch (error) {
-                console.error("Error fetching users:", error);
+                // //console.error("Error fetching users:", error);
             } finally {
                 setLoadingUsers(false);
             }
@@ -48,11 +50,11 @@ function Admin() {
 
     async function fetchIndexedDocuments() {
         try {
-            const response = await axios.get("http://127.0.0.1:5001/fetch-all" );
+            const response = await axios.get(`${apiUrl}:5001/api/resources/fetch-all` );
             setIndexedDocs(response.data.indexedDocs || []);
-            console.log("Indexed documents:", response.data);
+            // console.log("Indexed documents:", response.data);
         } catch (error) {
-            console.error("Error fetching indexed documents:", error);
+            // console.error("Error fetching indexed documents:", error);
         } finally {
             setLoadingDocs(false);
         }

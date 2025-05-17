@@ -1,0 +1,9 @@
+
+
+// public/config.json
+
+{
+    "VITE_API_KEY":"https://ai.datany.online"
+
+}
+  

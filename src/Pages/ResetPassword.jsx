@@ -1,3 +1,4 @@
+// src/Pages/ResetPassword.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -10,6 +11,7 @@ function ResetPassword() {
   const [errorMessages, setErrorMessages] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const apiUrl = import.meta.env.VITE_API_KEY;
 
   // Toast notification for success 
   const notifySuccess = () => toast("Password reset successfully!");
@@ -20,7 +22,7 @@ function ResetPassword() {
     
     try {
       // Send PUT request to backend (Ensure your backend supports PUT)
-      const response = await axios.post("http://localhost:5001/api/users/forgot-password", {
+      const response = await axios.post(`${apiUrl}:5001/api/users/forgot-password`, {
         email: data.email,
         password: data.password
       });
@@ -34,10 +36,10 @@ function ResetPassword() {
         }, 2000);
       } else {
         setErrorMessages(response.data.message || "Something went wrong");
-        console.log(response.data.message);
+        // console.log(response.data.message);
       }
     } catch (err) {
-      console.log(err);
+      // console.log(err);
       setErrorMessages(err.response?.data?.message || "Failed to reset password"); 
       setIsLoading(false); // Stop loading indicator
     }

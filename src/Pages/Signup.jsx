@@ -1,3 +1,4 @@
+// src/Pages/Signup.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -10,6 +11,7 @@ function Signup() {
   const [errorMessages, setErrorMessages] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const apiUrl = import.meta.env.VITE_API_KEY;
 
   // Toast notification for success 
   const notifySuccess = () => toast("Signed up successfully!");
@@ -24,7 +26,7 @@ function Signup() {
 
     try {
     // Send POST request to backend
-      const response = await axios.post('http://localhost:5001/api/register',{
+      const response = await axios.post(`${apiUrl}:5001/api/register`,{
         email: data.email,
         password:data.password
       });
@@ -38,7 +40,7 @@ function Signup() {
     } else {
        // Handle unexpected statuses
        setErrorMessages(err.message);
-       console.log(err.message);
+      //  console.log(err.message);
        
       }
     } catch (err) {

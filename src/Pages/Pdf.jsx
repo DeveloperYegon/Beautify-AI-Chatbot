@@ -1,3 +1,4 @@
+// src/Pages/Pdf.jsx
 import { useState } from 'react'
 import axios from "axios";
 
@@ -9,6 +10,7 @@ function Pdf() {
     // Handle input changes
     const handlePdfChange = (e) => setPdf(e.target.files[0]);
    
+    const apiUrl = import.meta.env.VITE_API_KEY;
 
 
    
@@ -23,12 +25,12 @@ function Pdf() {
         formData.append("pdf", pdf);
 
         try {
-            await axios.post("http://localhost:5001/upload-pdf", formData, {
+            await axios.post(`${apiUrl}:5001/api/documents/upload-pdf`, formData, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
             alert(" PDF indexed successfully!");
         } catch (error) {
-            console.error(" Error uploading PDF:", error);
+            // console.error(" Error uploading PDF:", error);
         } finally {
             setLoading(false);
         }

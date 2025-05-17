@@ -1,3 +1,4 @@
+// /back/models/Chat.js
 const mongoose = require("mongoose");
 
 const messageSchema = new mongoose.Schema({
@@ -28,6 +29,11 @@ const messageSchema = new mongoose.Schema({
       },
       reference: String
     }],
+    articles: [{
+      title: String,
+      url: String
+    }],
+    productLink: String,
     response_quality: {
       type: Number,
       min: 1,
@@ -72,6 +78,13 @@ const chatSchema = new mongoose.Schema({
   tags: { // Moved tags out of metadata for easier querying
     type: [String],
     index: true
+  },
+  latest_recommendations: {
+    articles: [{
+      title: String,
+      url: String
+    }],
+    productLink: String
   }
 });
 

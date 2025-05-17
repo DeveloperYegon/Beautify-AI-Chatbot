@@ -1,3 +1,4 @@
+// src/Pages/Notifications.jsx
 import React from 'react'
 
 function Notifications() {

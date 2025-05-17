@@ -1,5 +1,5 @@
-
-const {vectorStore} = require('../server');
+// /back/controllers/resourceControllers.js
+const {vectorStore} = require('../config/vectorstore');
 //fetch indexed documents
 module.exports.fetchAll = async (req, res) => {
 

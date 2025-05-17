@@ -1,3 +1,4 @@
+// src/Pages/Chat.jsx
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
@@ -18,6 +19,8 @@ function Chat() {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
+  const apiUrl = import.meta.env.VITE_API_KEY;
+
 
     // Sync Redux state with local state
     useEffect(() => {
@@ -56,7 +59,7 @@ function Chat() {
     setQuestion("");
 
     try {
-      const response = await axios.post("http://localhost:5001/ask", { question, thread_id },{
+      const response = await axios.post(`${apiUrl}:5001/api/chats/ask`, { question, thread_id },{
         headers: {
           "Authorization": `Bearer ${token}`,
           "Accept": "application/json",
@@ -69,7 +72,7 @@ function Chat() {
       setMessages((prev) => [...prev, { role: "ai", content: response.data, createdAt: Date.now() }]);
     }
     } catch (error) {
-      console.error("Error asking question:", error);
+      // console.error("Error asking question:", error);
       setMessages((prev) => [
         ...prev,
         { role: "ai", content: "Sorry, I encountered an error. Please try again later." },

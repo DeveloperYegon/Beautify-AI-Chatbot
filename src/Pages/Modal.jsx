@@ -1,3 +1,4 @@
+// src/Pages/Modal.jsx
 import React from 'react';
 
 const Modal = ({ show, onClose, children }) => {

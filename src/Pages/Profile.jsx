@@ -1,3 +1,4 @@
+// src/Pages/Profile.jsx
 import React, { useState, useEffect } from "react";
 import { ToastContainer, toast } from 'react-toastify';
 import {jwtDecode} from "jwt-decode";
@@ -29,10 +30,10 @@ function Profile() {
     const decodedToken = jwtDecode(token);
     userId = decodedToken.userId; // Extract user ID from token
   } catch (error) {
-    console.error(" Error decoding token:", error);
+    // console.error(" Error decoding token:", error);
   }
 
-  console.log("User ID:", userId);
+  // console.log("User ID:", userId);
 
   useEffect(() => {
     if (userId) {
@@ -65,13 +66,13 @@ function Profile() {
   const handleSave = async (e) => {
     e.preventDefault();
     if (!updatedUser) return;
-    console.log(user);
+    // console.log(user);
     try {
       dispatch(updateUser({ ...updatedUser, userId }));
       toast.success("Profile updated successfully!");
     } catch (error) {
       toast.error("Error updating profile. Please try again later.");
-      console.error("Error updating profile:", error);
+      // console.error("Error updating profile:", error);
     }
   };
 
@@ -85,7 +86,7 @@ function Profile() {
 
         {errorMessages && <div className='text-center py-3 text-red-600'>{errorMessages}</div>}
 
-        <form className="flex m-5 p-3 flex-col">
+        <form className="grid grid-cols-2 m-5 p-3 ">
           <label className="font-bold py-3" htmlFor="name">Name:</label>
           <input className="bg-slate-300 border p-3 rounded-xl" type="text" name="name" value={updatedUser?.name || ""} onChange={handleChange} placeholder="Enter your name"/>
 

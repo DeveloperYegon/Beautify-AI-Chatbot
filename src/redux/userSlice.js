@@ -1,14 +1,17 @@
+// src/redux/userSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+
+const apiUrl = import.meta.env.VITE_API_KEY;
 
 // Async action to fetch user data
 export const fetchUser = createAsyncThunk("user/fetchUser", async (userId, { rejectWithValue }) => {
   try {
     const token = localStorage.getItem("authToken");
-    const response = await axios.get(`http://localhost:5001/api/users/${userId}`, {
+    const response = await axios.get(`${apiUrl}:5001/api/users/${userId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    console.log("User data fetched:", response.data);
+    // console.log("User data fetched:", response.data);
     
     return response.data;
   } catch (error) {
@@ -20,7 +23,7 @@ export const fetchUser = createAsyncThunk("user/fetchUser", async (userId, { rej
 export const updateUser = createAsyncThunk("user/updateUser", async (userData, { rejectWithValue }) => {
   try {
     const token = localStorage.getItem("authToken");
-    await axios.put(`http://localhost:5001/api/users/${userData.userId}`, userData, {
+    await axios.put(`${apiUrl}:5001/api/users/${userData.userId}`, userData, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return userData;

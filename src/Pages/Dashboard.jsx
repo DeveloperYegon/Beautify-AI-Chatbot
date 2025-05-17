@@ -1,3 +1,4 @@
+// src/Pages/Dashboard.jsx
 import React,{useState} from 'react'
 import Chat from './Chat'
 import Sidebar from '../Components/Sidebar'
